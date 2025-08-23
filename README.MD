@@ -17,7 +17,7 @@ No backend, no tracking, and works offline after the first load. 🚀
 ---
 
 ## 🚀 Live Demo
-👉 [Click here to try it](https://yourusername.github.io/free-qr-code-generator.io)  
+👉 [Click here to try it](https://lovnishverma.github.io/free-qr-code-generator.io)  
 
 ---
 
@@ -25,7 +25,7 @@ No backend, no tracking, and works offline after the first load. 🚀
 Clone the repo and open `index.html` in your browser:
 
 ```bash
-git clone https://github.com/yourusername/free-qr-code-generator.io.git
+git clone https://github.com/lovnishverma/free-qr-code-generator.io.git
 cd free-qr-code-generator.io
 ````
 
@@ -71,7 +71,7 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 
 ## 📜 License
 
-MIT License © 2025 \[Your Name]
+MIT License © 2025 \[Lovnish Verma]
 
 ---
 
