@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QR Studio Pro - Professional QR Code Generator & Scanner</title>
+  <meta name="description" content="The most advanced QR code generator with custom branding, analytics, batch processing, and professional features." />
+  <style>
+    :root {
+      --bg-primary: #0a0e16;
+      --bg-secondary: #0f1419;
+      --bg-card: #141922;
+      --bg-input: #1a1f28;
+      --border: #2d3748;
+      --border-focus: #4299e1;
+      --text-primary: #e2e8f0;
+      --text-secondary: #a0aec0;
+      --text-muted: #718096;
+      --accent: #00d4ff;
+      --accent-dark: #0099cc;
+      --success: #48bb78;
+      --warning: #ed8936;
+      --error: #f56565;
+      --purple: #9f7aea;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-accent: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.4);
+      --shadow-glow: 0 0 20px rgba(0,212,255,0.3);
+    }
+
+    * { box-sizing: border-box; }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: radial-gradient(ellipse at top, #1a202c, var(--bg-primary));
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+      background: var(--gradient-primary);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin: 10px 0 0;
+      color: var(--text-secondary);
+      -webkit-text-fill-color: var(--text-secondary);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 30px;
+      background: var(--bg-card);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text-secondary);
+      font-weight: 500;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .tab:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .tab.active {
+      background: var(--gradient-accent);
+      color: white;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--gradient-accent);
+      opacity: 0.5;
+    }
+
+    .card-full { grid-column: span 12; }
+    .card-8 { grid-column: span 8; }
+    .card-4 { grid-column: span 4; }
+    .card-6 { grid-column: span 6; }
+
+    @media (max-width: 1024px) {
+      .card-8, .card-4, .card-6 { grid-column: span 12; }
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0 0 20px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: var(--gradient-accent);
+      border-radius: 2px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      font-family: ui-monospace, Monaco, Consolas, monospace;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      justify-content: center;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--gradient-accent);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--border);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #ed8936, #dd6b20);
+      color: white;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .preview-container {
+      background: linear-gradient(135deg, #f7fafc, #edf2f7);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .qr-canvas {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .logo-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 20%;
+      max-height: 20%;
+      border-radius: 50%;
+      border: 2px solid white;
+      background: white;
+      padding: 2px;
+    }
+
+    .advanced-options {
+      background: rgba(159, 122, 234, 0.1);
+      border: 1px solid rgba(159, 122, 234, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .color-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .color-input {
+      width: 100%;
+      height: 40px;
+      padding: 0;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .template-card {
+      background: var(--bg-input);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .template-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .template-card.active {
+      border-color: var(--accent);
+      background: rgba(0, 212, 255, 0.1);
+    }
+
+    .batch-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .scanner-view {
+      position: relative;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 400px;
+    }
+
+    .video-element {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .scan-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scan-frame {
+      width: 250px;
+      height: 250px;
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .scan-frame::before,
+    .scan-frame::after {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border: 3px solid var(--accent);
+    }
+
+    .scan-frame::before {
+      top: -3px;
+      left: -3px;
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .scan-frame::after {
+      bottom: -3px;
+      right: -3px;
+      border-left: none;
+      border-top: none;
+    }
+
+    .result-display {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: ui-monospace, Monaco, Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border-left: 4px solid;
+    }
+
+    .alert-success {
+      background: rgba(72, 187, 120, 0.1);
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .alert-warning {
+      background: rgba(237, 137, 54, 0.1);
+      border-color: var(--warning);
+      color: var(--warning);
+    }
+
+    .alert-error {
+      background: rgba(245, 101, 101, 0.1);
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--gradient-accent);
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    .floating-toolbar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .scanning {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-in {
+      animation: slideInUp 0.3s ease-out;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .mt-4 { margin-top: 16px; }
+    .mb-4 { margin-bottom: 16px; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 8px; }
+    .gap-4 { gap: 16px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>QR Studio Pro</h1>
+      <p>The most advanced QR code generator with professional features</p>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="generator">🎨 Generator</div>
+      <div class="tab" data-tab="batch">📦 Batch</div>
+      <div class="tab" data-tab="scanner">📱 Scanner</div>
+      <div class="tab" data-tab="analytics">📊 Analytics</div>
+      <div class="tab" data-tab="templates">🎯 Templates</div>
+    </div>
+
+    <!-- GENERATOR PANEL -->
+    <div id="generator-panel" class="panel active">
+      <div class="grid">
+        <div class="card card-8">
+          <div class="section-title">Content Configuration</div>
+          
+          <div class="form-group">
+            <label for="qr-content">Content</label>
+            <textarea id="qr-content" placeholder="Enter text, URL, WiFi config, vCard, or any content...">https://example.com</textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="content-type">Content Type</label>
+              <select id="content-type">
+                <option value="text">Plain Text</option>
+                <option value="url" selected>URL/Link</option>
+                <option value="wifi">WiFi Network</option>
+                <option value="vcard">vCard Contact</option>
+                <option value="sms">SMS Message</option>
+                <option value="email">Email</option>
+                <option value="geo">Geographic Location</option>
+                <option value="phone">Phone Number</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="error-correction">Error Correction</label>
+              <select id="error-correction">
+                <option value="L">Low (7%)</option>
+                <option value="M" selected>Medium (15%)</option>
+                <option value="Q">High (25%)</option>
+                <option value="H">Highest (30%)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="advanced-options">
+            <div class="section-title">Visual Customization</div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="qr-size">Size (pixels)</label>
+                <input type="range" id="qr-size" min="100" max="2048" value="512" step="32">
+                <span id="size-display">512x512</span>
+              </div>
+              <div class="form-group">
+                <label for="qr-margin">Margin</label>
+                <input type="range" id="qr-margin" min="0" max="20" value="4">
+                <span id="margin-display">4</span>
+              </div>
+            </div>
+
+            <div class="color-grid">
+              <div class="color-input-group">
+                <label>Foreground</label>
+                <input type="color" id="fg-color" class="color-input" value="#000000">
+              </div>
+              <div class="color-input-group">
+                <label>Background</label>
+                <input type="color" id="bg-color" class="color-input" value="#ffffff">
+              </div>
+              <div class="color-input-group">
+                <label>Gradient Start</label>
+                <input type="color" id="gradient-start" class="color-input" value="#667eea">
+              </div>
+              <div class="color-input-group">
+                <label>Gradient End</label>
+                <input type="color" id="gradient-end" class="color-input" value="#764ba2">
+              </div>
+            </div>
+
+            <div class="form-row mt-4">
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" id="use-gradient"> Use Gradient Colors
+                </label>
+              </div>
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" id="rounded-corners"> Rounded Corners
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="logo-upload">Logo/Brand (optional)</label>
+              <input type="file" id="logo-upload" accept="image/*">
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-primary" id="generate-btn">🎨 Generate QR Code</button>
+            <button class="btn btn-secondary" id="preview-btn">👁️ Live Preview</button>
+            <button class="btn btn-secondary" id="reset-btn">🔄 Reset</button>
+          </div>
+        </div>
+
+        <div class="card card-4">
+          <div class="section-title">Live Preview</div>
+          <div class="preview-container" id="qr-preview">
+            <div style="color: var(--text-muted);">
+              Click "Generate QR Code" to see preview
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-success" id="download-png" disabled>⬇️ PNG</button>
+            <button class="btn btn-success" id="download-svg" disabled>⬇️ SVG</button>
+            <button class="btn btn-secondary" id="copy-image" disabled>📋 Copy</button>
+            <button class="btn btn-secondary" id="print-qr" disabled>🖨️ Print</button>
+          </div>
+
+          <div class="stats-grid mt-4">
+            <div class="stat-card">
+              <div class="stat-value" id="qr-modules">0</div>
+              <div class="stat-label">Modules</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="data-capacity">0</div>
+              <div class="stat-label">Capacity</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BATCH PANEL -->
+    <div id="batch-panel" class="panel">
+      <div class="grid">
+        <div class="card card-full">
+          <div class="section-title">Batch QR Generation</div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="batch-input">Batch Data (one per line)</label>
+              <textarea id="batch-input" rows="8" placeholder="https://example1.com
+https://example2.com
+Contact John Doe
+WiFi Network Config"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="batch-template">Template</label>
+              <select id="batch-template">
+                <option value="url">URL Links</option>
+                <option value="text">Plain Text</option>
+                <option value="sequential">Sequential Numbers</option>
+                <option value="custom">Custom Format</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="batch-prefix">Prefix</label>
+              <input type="text" id="batch-prefix" placeholder="https://mysite.com/">
+            </div>
+            <div class="form-group">
+              <label for="batch-format">Output Format</label>
+              <select id="batch-format">
+                <option value="png">PNG Images</option>
+                <option value="svg">SVG Vector</option>
+                <option value="pdf">PDF Document</option>
+                <option value="zip">ZIP Archive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-primary" id="batch-generate">🚀 Generate Batch</button>
+            <button class="btn btn-secondary" id="batch-preview">👁️ Preview</button>
+            <button class="btn btn-secondary" id="batch-clear">🗑️ Clear</button>
+          </div>
+
+          <div class="progress-bar mt-4" id="batch-progress">
+            <div class="progress-fill"></div>
+          </div>
+
+          <div id="batch-results" class="mt-4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCANNER PANEL -->
+    <div id="scanner-panel" class="panel">
+      <div class="grid">
+        <div class="card card-6">
+          <div class="section-title">Camera Scanner</div>
+          
+          <div class="scanner-view" id="camera-view">
+            <video id="video" class="video-element" autoplay playsinline muted></video>
+            <canvas id="scanner-overlay" class="scan-overlay"></canvas>
+            <div class="scan-frame"></div>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-primary" id="start-camera">📷 Start Camera</button>
+            <button class="btn btn-secondary" id="stop-camera" disabled>⏹️ Stop</button>
+            <select id="camera-select" disabled>
+              <option>Select Camera...</option>
+            </select>
+          </div>
+
+          <div class="form-group mt-4">
+            <label>Camera Settings</label>
+            <div class="form-row">
+              <div class="form-group">
+                <input type="checkbox" id="auto-focus"> Auto Focus
+              </div>
+              <div class="form-group">
+                <input type="checkbox" id="torch" disabled> Flashlight
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-6">
+          <div class="section-title">File Scanner</div>
+          
+          <div class="form-group">
+            <label for="file-upload">Upload Image</label>
+            <input type="file" id="file-upload" accept="image/*" multiple>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-secondary" id="paste-image">📋 Paste from Clipboard</button>
+            <button class="btn btn-secondary" id="scan-screen">🖥️ Screen Capture</button>
+          </div>
+
+          <div class="section-title mt-4">Scan Results</div>
+          <div class="result-display" id="scan-results">No QR codes detected yet...</div>
+
+          <div class="btn-group">
+            <button class="btn btn-success" id="copy-result" disabled>📋 Copy Result</button>
+            <button class="btn btn-secondary" id="open-link" disabled>🔗 Open Link</button>
+            <button class="btn btn-secondary" id="save-result" disabled>💾 Save</button>
+          </div>
+
+          <div id="scan-history" class="mt-4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS PANEL -->
+    <div id="analytics-panel" class="panel">
+      <div class="grid">
+        <div class="card card-full">
+          <div class="section-title">QR Code Analytics</div>
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="total-generated">0</div>
+              <div class="stat-label">Total Generated</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="total-scanned">0</div>
+              <div class="stat-label">Total Scanned</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="most-popular-type">URL</div>
+              <div class="stat-label">Popular Type</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="avg-size">512px</div>
+              <div class="stat-label">Avg Size</div>
+            </div>
+          </div>
+
+          <div class="form-row mt-4">
+            <div class="card" style="grid-column: span 6;">
+              <div class="section-title">Recent Activity</div>
+              <div id="recent-activity"></div>
+            </div>
+            <div class="card" style="grid-column: span 6;">
+              <div class="section-title">Export Data</div>
+              <div class="btn-group">
+                <button class="btn btn-secondary" id="export-json">📄 JSON</button>
+                <button class="btn btn-secondary" id="export-csv">📊 CSV</button>
+                <button class="btn btn-secondary" id="clear-data">🗑️ Clear Data</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMPLATES PANEL -->
+    <div id="templates-panel" class="panel">
+      <div class="grid">
+        <div class="card card-full">
+          <div class="section-title">Professional Templates</div>
+          
+          <div class="template-grid">
+            <div class="template-card" data-template="business">
+              <h3>🏢 Business Card</h3>
+              <p>Professional contact info with vCard format</p>
+            </div>
+            <div class="template-card" data-template="wifi">
+              <h3>📶 WiFi Access</h3>
+              <p>Easy WiFi connection for guests</p>
+            </div>
+            <div class="template-card" data-template="social">
+              <h3>📱 Social Media</h3>
+              <p>Link to social profiles and handles</p>
+            </div>
+            <div class="template-card" data-template="menu">
+              <h3>🍽️ Restaurant Menu</h3>
+              <p>Digital menu with contact info</p>
+            </div>
+            <div class="template-card" data-template="event">
+              <h3>🎉 Event Info</h3>
+              <p>Event details and calendar integration</p>
+            </div>
+            <div class="template-card" data-template="product">
+              <h3>📦 Product Info</h3>
+              <p>Product details and purchase links</p>
+            </div>
+            <div class="template-card" data-template="app">
+              <h3>📲 App Download</h3>
+              <p>Smart app store redirects</p>
+            </div>
+            <div class="template-card" data-template="crypto">
+              <h3>₿ Crypto Wallet</h3>
+              <p>Cryptocurrency payment address</p>
+            </div>
+          </div>
+
+          <div class="card mt-4" id="template-editor">
+            <div class="section-title">Template Editor</div>
+            <div id="template-form">
+              <p class="text-center" style="color: var(--text-muted);">Select a template above to customize</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toolbar -->
+  <div class="floating-toolbar">
+    <div class="btn-group gap-2">
+      <button class="btn btn-secondary" id="undo" disabled title="Undo">↶</button>
+      <button class="btn btn-secondary" id="redo" disabled title="Redo">↷</button>
+      <button class="btn btn-secondary" id="fullscreen" title="Fullscreen">⛶</button>
+    </div>
+  </div>
+
+  <script>
+    // Global state management
+    const QRStudio = {
+      currentQR: null,
+      history: [],
+      historyIndex: -1,
+      analytics: JSON.parse(localStorage.getItem('qr-analytics') || '{"generated": 0, "scanned": 0, "types": {}, "recent": []}'),
+      scanHistory: [],
+      currentStream: null,
+      isScanning: false,
+      
+      // Save analytics
+      saveAnalytics() {
+        localStorage.setItem('qr-analytics', JSON.stringify(this.analytics));
+      },
+
+      // Add to history for undo/redo
+      addToHistory(state) {
+        this.history = this.history.slice(0, this.historyIndex + 1);
+        this.history.push(JSON.parse(JSON.stringify(state)));
+        this.historyIndex++;
+        this.updateUndoRedo();
+      },
+
+      updateUndoRedo() {
+        document.getElementById('undo').disabled = this.historyIndex <= 0;
+        document.getElementById('redo').disabled = this.historyIndex >= this.history.length - 1;
+      },
+
+      // Track generation
+      trackGeneration(type, size) {
+        this.analytics.generated++;
+        this.analytics.types[type] = (this.analytics.types[type] || 0) + 1;
+        this.analytics.recent.unshift({
+          type: 'generate',
+          contentType: type,
+          size: size,
+          timestamp: Date.now()
+        });
+        if (this.analytics.recent.length > 50) this.analytics.recent.pop();
+        this.saveAnalytics();
+        this.updateAnalyticsDisplay();
+      },
+
+      // Track scanning
+      trackScan(content) {
+        this.analytics.scanned++;
+        this.analytics.recent.unshift({
+          type: 'scan',
+          content: content.substring(0, 100),
+          timestamp: Date.now()
+        });
+        if (this.analytics.recent.length > 50) this.analytics.recent.pop();
+        this.saveAnalytics();
+        this.updateAnalyticsDisplay();
+      },
+
+      updateAnalyticsDisplay() {
+        document.getElementById('total-generated').textContent = this.analytics.generated;
+        document.getElementById('total-scanned').textContent = this.analytics.scanned;
+        
+        const mostPopular = Object.keys(this.analytics.types).reduce((a, b) => 
+          (this.analytics.types[a] || 0) > (this.analytics.types[b] || 0) ? a : b, 'URL');
+        document.getElementById('most-popular-type').textContent = mostPopular;
+
+        // Recent activity
+        const recentDiv = document.getElementById('recent-activity');
+        recentDiv.innerHTML = this.analytics.recent.slice(0, 10).map(item => {
+          const date = new Date(item.timestamp).toLocaleString();
+          return `<div class="batch-item">
+            <div>
+              <strong>${item.type === 'generate' ? '🎨' : '📱'} ${item.type}</strong>
+              <div style="color: var(--text-muted); font-size: 0.9rem;">${item.contentType || item.content || ''}</div>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.8rem;">${date}</div>
+          </div>`
+        }).join('');
+      }
+    };
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active from all tabs and panels
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        
+        // Add active to clicked tab and corresponding panel
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab + '-panel').classList.add('active');
+      });
+    });
+
+    // QR Generator functionality
+    class QRGenerator {
+      constructor() {
+        this.initializeElements();
+        this.bindEvents();
+        this.updateDisplays();
+      }
+
+      initializeElements() {
+        this.contentInput = document.getElementById('qr-content');
+        this.contentType = document.getElementById('content-type');
+        this.errorCorrection = document.getElementById('error-correction');
+        this.sizeSlider = document.getElementById('qr-size');
+        this.marginSlider = document.getElementById('qr-margin');
+        this.fgColor = document.getElementById('fg-color');
+        this.bgColor = document.getElementById('bg-color');
+        this.gradientStart = document.getElementById('gradient-start');
+        this.gradientEnd = document.getElementById('gradient-end');
+        this.useGradient = document.getElementById('use-gradient');
+        this.roundedCorners = document.getElementById('rounded-corners');
+        this.logoUpload = document.getElementById('logo-upload');
+        this.preview = document.getElementById('qr-preview');
+        this.generateBtn = document.getElementById('generate-btn');
+        this.previewBtn = document.getElementById('preview-btn');
+        this.resetBtn = document.getElementById('reset-btn');
+      }
+
+      bindEvents() {
+        this.generateBtn.addEventListener('click', () => this.generateQR());
+        this.previewBtn.addEventListener('click', () => this.generateQR(true));
+        this.resetBtn.addEventListener('click', () => this.reset());
+        
+        this.sizeSlider.addEventListener('input', () => this.updateDisplays());
+        this.marginSlider.addEventListener('input', () => this.updateDisplays());
+        
+        this.contentType.addEventListener('change', () => this.updateContentTemplate());
+        
+        // Live preview on content change (debounced)
+        let timeout;
+        this.contentInput.addEventListener('input', () => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => this.generateQR(true), 500);
+        });
+
+        // Color changes
+        [this.fgColor, this.bgColor, this.gradientStart, this.gradientEnd].forEach(input => {
+          input.addEventListener('input', () => {
+            if (QRStudio.currentQR) this.generateQR(true);
+          });
+        });
+
+        this.useGradient.addEventListener('change', () => {
+          if (QRStudio.currentQR) this.generateQR(true);
+        });
+
+        // Logo upload
+        this.logoUpload.addEventListener('change', (e) => {
+          if (e.target.files[0]) {
+            this.processLogo(e.target.files[0]);
+          }
+        });
+      }
+
+      updateDisplays() {
+        document.getElementById('size-display').textContent = `${this.sizeSlider.value}x${this.sizeSlider.value}`;
+        document.getElementById('margin-display').textContent = this.marginSlider.value;
+      }
+
+      updateContentTemplate() {
+        const type = this.contentType.value;
+        const templates = {
+          url: 'https://example.com',
+          wifi: 'WIFI:T:WPA;S:YourNetworkName;P:YourPassword;;',
+          vcard: `BEGIN:VCARD
+VERSION:3.0
+FN:John Doe
+ORG:Company Name
+TITLE:Job Title
+TEL:+1234567890
+EMAIL:john@example.com
+URL:https://example.com
+END:VCARD`,
+          sms: 'SMSTO:+1234567890:Hello, this is a pre-filled SMS message!',
+          email: 'mailto:someone@example.com?subject=Subject&body=Message body',
+          geo: 'geo:37.7749,-122.4194?q=37.7749,-122.4194(Location Name)',
+          phone: 'tel:+1234567890'
+        };
+        
+        if (templates[type]) {
+          this.contentInput.value = templates[type];
+        }
+      }
+
+      async processLogo(file) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              this.logoImage = img;
+              if (QRStudio.currentQR) this.generateQR(true);
+              resolve();
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async generateQR(preview = false) {
+        const content = this.contentInput.value.trim();
+        if (!content) {
+          this.showAlert('Please enter some content to encode', 'warning');
+          return;
+        }
+
+        const config = {
+          text: content,
+          width: parseInt(this.sizeSlider.value),
+          height: parseInt(this.sizeSlider.value),
+          colorDark: this.useGradient.checked ? this.gradientStart.value : this.fgColor.value,
+          colorLight: this.bgColor.value,
+          correctLevel: QRCode.CorrectLevel[this.errorCorrection.value]
+        };
+
+        try {
+          // Clear previous QR
+          this.preview.innerHTML = '';
+          
+          // Create QR code
+          const qr = new QRCode(this.preview, config);
+          QRStudio.currentQR = qr;
+
+          // Apply gradient if enabled
+          setTimeout(() => {
+            if (this.useGradient.checked) {
+              this.applyGradient();
+            }
+            if (this.logoImage) {
+              this.overlayLogo();
+            }
+            this.enableDownloads();
+            this.updateStats();
+          }, 100);
+
+          if (!preview) {
+            QRStudio.trackGeneration(this.contentType.value, parseInt(this.sizeSlider.value));
+            this.showAlert('QR Code generated successfully!', 'success');
+          }
+
+        } catch (error) {
+          this.showAlert('Error generating QR code: ' + error.message, 'error');
+        }
+      }
+
+      applyGradient() {
+        const canvas = this.preview.querySelector('canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        // Create gradient
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, this.gradientStart.value);
+        gradient.addColorStop(1, this.gradientEnd.value);
+
+        // Apply gradient to black pixels
+        ctx.fillStyle = gradient;
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      overlayLogo() {
+        const canvas = this.preview.querySelector('canvas');
+        if (!canvas || !this.logoImage) return;
+
+        const ctx = canvas.getContext('2d');
+        const logoSize = Math.min(canvas.width, canvas.height) * 0.2;
+        const x = (canvas.width - logoSize) / 2;
+        const y = (canvas.height - logoSize) / 2;
+
+        // Create circular clipping path
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x + logoSize/2, y + logoSize/2, logoSize/2, 0, Math.PI * 2);
+        ctx.clip();
+
+        // Draw white background
+        ctx.fillStyle = 'white';
+        ctx.fill();
+
+        // Draw logo
+        ctx.drawImage(this.logoImage, x + 5, y + 5, logoSize - 10, logoSize - 10);
+        ctx.restore();
+      }
+
+      enableDownloads() {
+        document.getElementById('download-png').disabled = false;
+        document.getElementById('download-svg').disabled = false;
+        document.getElementById('copy-image').disabled = false;
+        document.getElementById('print-qr').disabled = false;
+      }
+
+      updateStats() {
+        const canvas = this.preview.querySelector('canvas');
+        if (canvas) {
+          // Estimate modules (simplified)
+          const modules = Math.sqrt(this.contentInput.value.length * 8);
+          document.getElementById('qr-modules').textContent = Math.round(modules);
+          
+          // Estimate capacity based on error correction
+          const capacities = { L: 2953, M: 2331, Q: 1663, H: 1273 };
+          document.getElementById('data-capacity').textContent = capacities[this.errorCorrection.value];
+        }
+      }
+
+      reset() {
+        this.contentInput.value = 'https://example.com';
+        this.contentType.value = 'url';
+        this.sizeSlider.value = 512;
+        this.marginSlider.value = 4;
+        this.fgColor.value = '#000000';
+        this.bgColor.value = '#ffffff';
+        this.useGradient.checked = false;
+        this.roundedCorners.checked = false;
+        this.logoUpload.value = '';
+        this.logoImage = null;
+        this.preview.innerHTML = '<div style="color: var(--text-muted);">Click "Generate QR Code" to see preview</div>';
+        this.updateDisplays();
+        
+        document.getElementById('download-png').disabled = true;
+        document.getElementById('download-svg').disabled = true;
+        document.getElementById('copy-image').disabled = true;
+        document.getElementById('print-qr').disabled = true;
+      }
+
+      showAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} animate-in`;
+        alertDiv.textContent = message;
+        
+        // Insert at top of generator panel
+        const panel = document.getElementById('generator-panel');
+        panel.insertBefore(alertDiv, panel.firstChild);
+        
+        setTimeout(() => alertDiv.remove(), 5000);
+      }
+    }
+
+    // Download functionality
+    class DownloadManager {
+      constructor() {
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        document.getElementById('download-png').addEventListener('click', () => this.downloadPNG());
+        document.getElementById('download-svg').addEventListener('click', () => this.downloadSVG());
+        document.getElementById('copy-image').addEventListener('click', () => this.copyImage());
+        document.getElementById('print-qr').addEventListener('click', () => this.printQR());
+      }
+
+      downloadPNG() {
+        const canvas = document.querySelector('#qr-preview canvas');
+        if (!canvas) return;
+
+        const link = document.createElement('a');
+        link.download = `qr-code-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }
+
+      downloadSVG() {
+        // Convert canvas to SVG (simplified version)
+        const canvas = document.querySelector('#qr-preview canvas');
+        if (!canvas) return;
+
+        const svg = this.canvasToSVG(canvas);
+        const blob = new Blob([svg], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.download = `qr-code-${Date.now()}.svg`;
+        link.href = url;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+      }
+
+      canvasToSVG(canvas) {
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">`;
+        svg += `<rect width="100%" height="100%" fill="white"/>`;
+        
+        // Simple pixel-to-rect conversion
+        const pixelSize = Math.max(1, Math.floor(canvas.width / 50));
+        for (let y = 0; y < canvas.height; y += pixelSize) {
+          for (let x = 0; x < canvas.width; x += pixelSize) {
+            const idx = (y * canvas.width + x) * 4;
+            if (data[idx] < 128) { // Dark pixel
+              svg += `<rect x="${x}" y="${y}" width="${pixelSize}" height="${pixelSize}" fill="black"/>`;
+            }
+          }
+        }
+        
+        svg += '</svg>';
+        return svg;
+      }
+
+      async copyImage() {
+        const canvas = document.querySelector('#qr-preview canvas');
+        if (!canvas) return;
+
+        try {
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          
+          const btn = document.getElementById('copy-image');
+          const originalText = btn.textContent;
+          btn.textContent = '✅ Copied!';
+          setTimeout(() => btn.textContent = originalText, 2000);
+          
+        } catch (error) {
+          alert('Copy to clipboard not supported: ' + error.message);
+        }
+      }
+
+      printQR() {
+        const canvas = document.querySelector('#qr-preview canvas');
+        if (!canvas) return;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Print QR Code</title>
+            <style>
+              body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+              img { max-width: 90%; max-height: 90%; }
+              @media print { body { margin: 20px; } }
+            </style>
+          </head>
+          <body>
+            <img src="${canvas.toDataURL('image/png')}" alt="QR Code">
+          </body>
+          </html>
+        `);
+        
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+      }
+    }
+
+    // Batch processing
+    class BatchProcessor {
+      constructor() {
+        this.bindEvents();
+        this.results = [];
+      }
+
+      bindEvents() {
+        document.getElementById('batch-generate').addEventListener('click', () => this.generateBatch());
+        document.getElementById('batch-preview').addEventListener('click', () => this.previewBatch());
+        document.getElementById('batch-clear').addEventListener('click', () => this.clearBatch());
+      }
+
+      async generateBatch() {
+        const input = document.getElementById('batch-input').value.trim();
+        const template = document.getElementById('batch-template').value;
+        const prefix = document.getElementById('batch-prefix').value;
+        const format = document.getElementById('batch-format').value;
+
+        if (!input) {
+          alert('Please enter batch data');
+          return;
+        }
+
+        const lines = input.split('\n').filter(line => line.trim());
+        this.results = [];
+        
+        const progressBar = document.querySelector('#batch-progress .progress-fill');
+        const resultsDiv = document.getElementById('batch-results');
+        resultsDiv.innerHTML = '';
+
+        for (let i = 0; i < lines.length; i++) {
+          const content = this.processTemplate(lines[i], template, prefix, i);
+          const qrData = await this.generateSingleQR(content, i);
+          
+          if (qrData) {
+            this.results.push({ content, data: qrData, index: i });
+            this.displayResult(content, qrData, i);
+          }
+
+          // Update progress
+          const progress = ((i + 1) / lines.length) * 100;
+          progressBar.style.width = progress + '%';
+        }
+
+        // Offer download
+        this.offerBatchDownload(format);
+        QRStudio.trackGeneration('batch', this.results.length);
+      }
+
+      processTemplate(line, template, prefix, index) {
+        switch (template) {
+          case 'url':
+            return line.startsWith('http') ? line : (prefix + line);
+          case 'sequential':
+            return prefix + (index + 1);
+          case 'custom':
+            return prefix + line;
+          default:
+            return line;
+        }
+      }
+
+      async generateSingleQR(content, index) {
+        return new Promise((resolve) => {
+          const container = document.createElement('div');
+          container.style.position = 'absolute';
+          container.style.left = '-9999px';
+          document.body.appendChild(container);
+
+          try {
+            const qr = new QRCode(container, {
+              text: content,
+              width: 256,
+              height: 256,
+              colorDark: '#000000',
+              colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.M
+            });
+
+            setTimeout(() => {
+              const canvas = container.querySelector('canvas');
+              const dataURL = canvas ? canvas.toDataURL('image/png') : null;
+              document.body.removeChild(container);
+              resolve(dataURL);
+            }, 100);
+
+          } catch (error) {
+            document.body.removeChild(container);
+            resolve(null);
+          }
+        });
+      }
+
+      displayResult(content, dataURL, index) {
+        const resultsDiv = document.getElementById('batch-results');
+        const resultElement = document.createElement('div');
+        resultElement.className = 'batch-item';
+        resultElement.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="${dataURL}" alt="QR ${index + 1}" style="width: 48px; height: 48px; border-radius: 4px;">
+            <div>
+              <div><strong>QR ${index + 1}</strong></div>
+              <div style="color: var(--text-muted); font-size: 0.9rem; max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${content}</div>
+            </div>
+          </div>
+          <button class="btn btn-secondary" onclick="this.nextElementSibling.click()">⬇️</button>
+          <a href="${dataURL}" download="qr-${index + 1}.png" style="display: none;"></a>
+        `;
+        resultsDiv.appendChild(resultElement);
+      }
+
+      offerBatchDownload(format) {
+        const resultsDiv = document.getElementById('batch-results');
+        const downloadAll = document.createElement('div');
+        downloadAll.className = 'text-center mt-4';
+        downloadAll.innerHTML = `
+          <button class="btn btn-primary" onclick="batchProcessor.downloadAll('${format}')">
+            📦 Download All (${format.toUpperCase()})
+          </button>
+        `;
+        resultsDiv.appendChild(downloadAll);
+      }
+
+      async downloadAll(format) {
+        if (format === 'zip') {
+          // Simple zip creation (would need a proper zip library in production)
+          alert('ZIP download would require additional library. Individual downloads available above.');
+          return;
+        }
+
+        // Download individual files
+        this.results.forEach((result, index) => {
+          const link = document.createElement('a');
+          link.href = result.data;
+          link.download = `qr-batch-${index + 1}.png`;
+          link.click();
+        });
+      }
+
+      clearBatch() {
+        document.getElementById('batch-input').value = '';
+        document.getElementById('batch-results').innerHTML = '';
+        document.querySelector('#batch-progress .progress-fill').style.width = '0%';
+        this.results = [];
+      }
+    }
+
+    // QR Scanner
+    class QRScanner {
+      constructor() {
+        this.bindEvents();
+        this.scanHistory = [];
+        this.stream = null;
+        this.scanning = false;
+      }
+
+      bindEvents() {
+        document.getElementById('start-camera').addEventListener('click', () => this.startCamera());
+        document.getElementById('stop-camera').addEventListener('click', () => this.stopCamera());
+        document.getElementById('file-upload').addEventListener('change', (e) => this.scanFiles(e.target.files));
+        document.getElementById('paste-image').addEventListener('click', () => this.pasteFromClipboard());
+        document.getElementById('copy-result').addEventListener('click', () => this.copyResult());
+        document.getElementById('open-link').addEventListener('click', () => this.openLink());
+      }
+
+      async startCamera() {
+        try {
+          // Get available cameras
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const cameras = devices.filter(device => device.kind === 'videoinput');
+          
+          const select = document.getElementById('camera-select');
+          select.innerHTML = cameras.map((camera, index) => 
+            `<option value="${camera.deviceId}">${camera.label || `Camera ${index + 1}`}</option>`
+          ).join('');
+          select.disabled = false;
+
+          // Start video stream
+          this.stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              deviceId: select.value ? { exact: select.value } : undefined,
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
+          });
+
+          const video = document.getElementById('video');
+          video.srcObject = this.stream;
+          await video.play();
+
+          // Start scanning loop
+          this.scanning = true;
+          this.scanLoop();
+
+          document.getElementById('start-camera').disabled = true;
+          document.getElementById('stop-camera').disabled = false;
+
+        } catch (error) {
+          alert('Camera access denied or not available: ' + error.message);
+        }
+      }
+
+      stopCamera() {
+        this.scanning = false;
+        if (this.stream) {
+          this.stream.getTracks().forEach(track => track.stop());
+          this.stream = null;
+        }
+
+        const video = document.getElementById('video');
+        video.srcObject = null;
+
+        document.getElementById('start-camera').disabled = false;
+        document.getElementById('stop-camera').disabled = true;
+        document.getElementById('camera-select').disabled = true;
+      }
+
+      scanLoop() {
+        if (!this.scanning) return;
+
+        const video = document.getElementById('video');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+        if (code) {
+          this.handleScanResult(code.data);
+          // Brief pause after successful scan
+          setTimeout(() => this.scanLoop(), 1000);
+        } else {
+          requestAnimationFrame(() => this.scanLoop());
+        }
+      }
+
+      async scanFiles(files) {
+        for (const file of files) {
+          await this.scanSingleFile(file);
+        }
+      }
+
+      async scanSingleFile(file) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx.drawImage(img, 0, 0);
+
+              const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+              if (code) {
+                this.handleScanResult(code.data);
+              } else {
+                this.showScanResult('No QR code found in image', 'error');
+              }
+              resolve();
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async pasteFromClipboard() {
+        try {
+          const clipboardItems = await navigator.clipboard.read();
+          for (const item of clipboardItems) {
+            if (item.types.includes('image/png') || item.types.includes('image/jpeg')) {
+              const blob = await item.getType(item.types.find(type => type.startsWith('image/')));
+              const file = new File([blob], 'clipboard-image', { type: blob.type });
+              await this.scanSingleFile(file);
+              return;
+            }
+          }
+          alert('No image found in clipboard');
+        } catch (error) {
+          alert('Clipboard access not available: ' + error.message);
+        }
+      }
+
+      handleScanResult(data) {
+        this.showScanResult(data, 'success');
+        this.addToHistory(data);
+        QRStudio.trackScan(data);
+
+        // Enable action buttons
+        document.getElementById('copy-result').disabled = false;
+        document.getElementById('save-result').disabled = false;
+
+        // Check if it's a URL for the open link button
+        try {
+          new URL(data);
+          document.getElementById('open-link').disabled = false;
+          document.getElementById('open-link').onclick = () => window.open(data, '_blank');
+        } catch {
+          document.getElementById('open-link').disabled = true;
+        }
+      }
+
+      showScanResult(data, type = 'info') {
+        const resultDiv = document.getElementById('scan-results');
+        resultDiv.textContent = data;
+        resultDiv.className = `result-display ${type === 'error' ? 'danger-text' : type === 'success' ? 'success-text' : ''}`;
+      }
+
+      addToHistory(data) {
+        this.scanHistory.unshift({
+          data: data,
+          timestamp: new Date().toISOString(),
+          type: this.detectContentType(data)
+        });
+        this.updateHistoryDisplay();
+      }
+
+      detectContentType(data) {
+        if (data.startsWith('http')) return 'URL';
+        if (data.startsWith('WIFI:')) return 'WiFi';
+        if (data.startsWith('BEGIN:VCARD')) return 'vCard';
+        if (data.startsWith('mailto:')) return 'Email';
+        if (data.startsWith('tel:')) return 'Phone';
+        if (data.startsWith('geo:')) return 'Location';
+        return 'Text';
+      }
+
+      updateHistoryDisplay() {
+        const historyDiv = document.getElementById('scan-history');
+        historyDiv.innerHTML = '<h4>Recent Scans</h4>' + 
+          this.scanHistory.slice(0, 5).map((item, index) => `
+            <div class="batch-item">
+              <div>
+                <strong>${item.type}</strong>
+                <div style="color: var(--text-muted); font-size: 0.9rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis;">${item.data}</div>
+                <div style="color: var(--text-muted); font-size: 0.8rem;">${new Date(item.timestamp).toLocaleString()}</div>
+              </div>
+              <button class="btn btn-secondary" onclick="qrScanner.copyToClipboard('${item.data.replace(/'/g, "\\'")}')">📋</button>
+            </div>
+          `).join('');
+      }
+
+      async copyResult() {
+        const resultText = document.getElementById('scan-results').textContent;
+        await this.copyToClipboard(resultText);
+      }
+
+      async copyToClipboard(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          // Show feedback
+          const btn = event?.target || document.getElementById('copy-result');
+          const originalText = btn.textContent;
+          btn.textContent = '✅ Copied!';
+          setTimeout(() => btn.textContent = originalText, 2000);
+        } catch (error) {
+          alert('Copy failed: ' + error.message);
+        }
+      }
+
+      openLink() {
+        const resultText = document.getElementById('scan-results').textContent;
+        if (resultText) {
+          window.open(resultText, '_blank');
+        }
+      }
+    }
+
+    // Template System
+    class TemplateSystem {
+      constructor() {
+        this.templates = {
+          business: {
+            name: '🏢 Business Card',
+            description: 'Professional contact info with vCard format',
+            fields: [
+              { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+              { name: 'company', label: 'Company', type: 'text' },
+              { name: 'title', label: 'Job Title', type: 'text' },
+              { name: 'phone', label: 'Phone', type: 'tel' },
+              { name: 'email', label: 'Email', type: 'email', required: true },
+              { name: 'website', label: 'Website', type: 'url' },
+              { name: 'address', label: 'Address', type: 'textarea' }
+            ],
+            generate: (data) => `BEGIN:VCARD
+VERSION:3.0
+FN:${data.fullName}
+ORG:${data.company}
+TITLE:${data.title}
+TEL:${data.phone}
+EMAIL:${data.email}
+URL:${data.website}
+ADR:;;${data.address};;;;
+END:VCARD`
+          },
+          
+          wifi: {
+            name: '📶 WiFi Access',
+            description: 'Easy WiFi connection for guests',
+            fields: [
+              { name: 'ssid', label: 'Network Name (SSID)', type: 'text', required: true },
+              { name: 'password', label: 'Password', type: 'password', required: true },
+              { name: 'security', label: 'Security Type', type: 'select', options: ['WPA', 'WEP', 'nopass'], default: 'WPA' },
+              { name: 'hidden', label: 'Hidden Network', type: 'checkbox' }
+            ],
+            generate: (data) => `WIFI:T:${data.security};S:${data.ssid};P:${data.password};H:${data.hidden ? 'true' : 'false'};;`
+          },
+
+          social: {
+            name: '📱 Social Media',
+            description: 'Link to social profiles and handles',
+            fields: [
+              { name: 'platform', label: 'Platform', type: 'select', options: ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'TikTok', 'YouTube'], required: true },
+              { name: 'username', label: 'Username/Handle', type: 'text', required: true },
+              { name: 'customUrl', label: 'Custom URL', type: 'url' }
+            ],
+            generate: (data) => {
+              if (data.customUrl) return data.customUrl;
+              const platforms = {
+                'Instagram': 'https://instagram.com/',
+                'Twitter': 'https://twitter.com/',
+                'LinkedIn': 'https://linkedin.com/in/',
+                'Facebook': 'https://facebook.com/',
+                'TikTok': 'https://tiktok.com/@',
+                'YouTube': 'https://youtube.com/c/'
+              };
+              return platforms[data.platform] + data.username;
+            }
+          },
+
+          menu: {
+            name: '🍽️ Restaurant Menu',
+            description: 'Digital menu with contact info',
+            fields: [
+              { name: 'restaurantName', label: 'Restaurant Name', type: 'text', required: true },
+              { name: 'menuUrl', label: 'Menu URL', type: 'url', required: true },
+              { name: 'phone', label: 'Phone Number', type: 'tel' },
+              { name: 'address', label: 'Address', type: 'textarea' }
+            ],
+            generate: (data) => data.menuUrl
+          },
+
+          event: {
+            name: '🎉 Event Info',
+            description: 'Event details and calendar integration',
+            fields: [
+              { name: 'eventName', label: 'Event Name', type: 'text', required: true },
+              { name: 'startDate', label: 'Start Date', type: 'datetime-local', required: true },
+              { name: 'endDate', label: 'End Date', type: 'datetime-local' },
+              { name: 'location', label: 'Location', type: 'text' },
+              { name: 'description', label: 'Description', type: 'textarea' }
+            ],
+            generate: (data) => {
+              const startDate = new Date(data.startDate).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+              const endDate = data.endDate ? new Date(data.endDate).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z' : startDate;
+              return `BEGIN:VEVENT
+SUMMARY:${data.eventName}
+DTSTART:${startDate}
+DTEND:${endDate}
+LOCATION:${data.location}
+DESCRIPTION:${data.description}
+END:VEVENT`;
+            }
+          },
+
+          product: {
+            name: '📦 Product Info',
+            description: 'Product details and purchase links',
+            fields: [
+              { name: 'productName', label: 'Product Name', type: 'text', required: true },
+              { name: 'productUrl', label: 'Product URL', type: 'url', required: true },
+              { name: 'price', label: 'Price', type: 'text' },
+              { name: 'description', label: 'Description', type: 'textarea' }
+            ],
+            generate: (data) => data.productUrl
+          },
+
+          app: {
+            name: '📲 App Download',
+            description: 'Smart app store redirects',
+            fields: [
+              { name: 'appName', label: 'App Name', type: 'text', required: true },
+              { name: 'iosUrl', label: 'iOS App Store URL', type: 'url' },
+              { name: 'androidUrl', label: 'Google Play URL', type: 'url' },
+              { name: 'webUrl', label: 'Web App URL', type: 'url' }
+            ],
+            generate: (data) => {
+              // Create a smart redirect (simplified)
+              return data.iosUrl || data.androidUrl || data.webUrl;
+            }
+          },
+
+          crypto: {
+            name: '₿ Crypto Wallet',
+            description: 'Cryptocurrency payment address',
+            fields: [
+              { name: 'currency', label: 'Currency', type: 'select', options: ['Bitcoin', 'Ethereum', 'Litecoin', 'Dogecoin'], required: true },
+              { name: 'address', label: 'Wallet Address', type: 'text', required: true },
+              { name: 'amount', label: 'Amount (optional)', type: 'number' },
+              { name: 'label', label: 'Label', type: 'text' }
+            ],
+            generate: (data) => {
+              const prefixes = {
+                'Bitcoin': 'bitcoin:',
+                'Ethereum': 'ethereum:',
+                'Litecoin': 'litecoin:',
+                'Dogecoin': 'dogecoin:'
+              };
+              let result = prefixes[data.currency] + data.address;
+              if (data.amount) result += `?amount=${data.amount}`;
+              if (data.label) result += `${data.amount ? '&' : '?'}label=${encodeURIComponent(data.label)}`;
+              return result;
+            }
+          }
+        };
+
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        document.querySelectorAll('.template-card').forEach(card => {
+          card.addEventListener('click', () => {
+            document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            this.loadTemplate(card.dataset.template);
+          });
+        });
+      }
+
+      loadTemplate(templateKey) {
+        const template = this.templates[templateKey];
+        if (!template) return;
+
+        const form = document.getElementById('template-form');
+        form.innerHTML = `
+          <h3>${template.name}</h3>
+          <p style="color: var(--text-muted); margin-bottom: 20px;">${template.description}</p>
+          <form id="template-fields">
+            ${template.fields.map(field => this.renderField(field)).join('')}
+            <div class="btn-group mt-4">
+              <button type="button" class="btn btn-primary" onclick="templateSystem.generateFromTemplate('${templateKey}')">
+                🎨 Generate QR Code
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="templateSystem.previewTemplate('${templateKey}')">
+                👁️ Preview
+              </button>
+              <button type="reset" class="btn btn-secondary">🔄 Reset</button>
+            </div>
+          </form>
+        `;
+      }
+
+      renderField(field) {
+        const required = field.required ? 'required' : '';
+        const value = field.default || '';
+
+        switch (field.type) {
+          case 'textarea':
+            return `
+              <div class="form-group">
+                <label for="${field.name}">${field.label} ${field.required ? '*' : ''}</label>
+                <textarea id="${field.name}" name="${field.name}" ${required}>${value}</textarea>
+              </div>
+            `;
+          
+          case 'select':
+            return `
+              <div class="form-group">
+                <label for="${field.name}">${field.label} ${field.required ? '*' : ''}</label>
+                <select id="${field.name}" name="${field.name}" ${required}>
+                  ${field.options.map(option => 
+                    `<option value="${option}" ${option === value ? 'selected' : ''}>${option}</option>`
+                  ).join('')}
+                </select>
+              </div>
+            `;
+          
+          case 'checkbox':
+            return `
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" id="${field.name}" name="${field.name}" ${value ? 'checked' : ''}>
+                  ${field.label}
+                </label>
+              </div>
+            `;
+          
+          default:
+            return `
+              <div class="form-group">
+                <label for="${field.name}">${field.label} ${field.required ? '*' : ''}</label>
+                <input type="${field.type}" id="${field.name}" name="${field.name}" value="${value}" ${required}>
+              </div>
+            `;
+        }
+      }
+
+      generateFromTemplate(templateKey) {
+        const template = this.templates[templateKey];
+        const formData = this.getFormData();
+        
+        try {
+          const content = template.generate(formData);
+          
+          // Set the content in the main generator
+          document.getElementById('qr-content').value = content;
+          document.getElementById('content-type').value = this.getContentTypeForTemplate(templateKey);
+          
+          // Switch to generator tab and generate
+          document.querySelector('[data-tab="generator"]').click();
+          setTimeout(() => {
+            qrGenerator.generateQR();
+          }, 100);
+          
+        } catch (error) {
+          alert('Error generating template: ' + error.message);
+        }
+      }
+
+      previewTemplate(templateKey) {
+        const template = this.templates[templateKey];
+        const formData = this.getFormData();
+        
+        try {
+          const content = template.generate(formData);
+          alert('Generated Content:\n\n' + content);
+        } catch (error) {
+          alert('Error previewing template: ' + error.message);
+        }
+      }
+
+      getFormData() {
+        const form = document.getElementById('template-fields');
+        const formData = {};
+        
+        const inputs = form.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+          if (input.type === 'checkbox') {
+            formData[input.name] = input.checked;
+          } else {
+            formData[input.name] = input.value;
+          }
+        });
+        
+        return formData;
+      }
+
+      getContentTypeForTemplate(templateKey) {
+        const mapping = {
+          business: 'vcard',
+          wifi: 'wifi',
+          social: 'url',
+          menu: 'url',
+          event: 'text',
+          product: 'url',
+          app: 'url',
+          crypto: 'text'
+        };
+        return mapping[templateKey] || 'text';
+      }
+    }
+
+    // Undo/Redo System
+    class HistoryManager {
+      constructor() {
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        document.getElementById('undo').addEventListener('click', () => this.undo());
+        document.getElementById('redo').addEventListener('click', () => this.redo());
+        document.getElementById('fullscreen').addEventListener('click', () => this.toggleFullscreen());
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey)) {
+            switch (e.key) {
+              case 'z':
+                if (e.shiftKey) {
+                  e.preventDefault();
+                  this.redo();
+                } else {
+                  e.preventDefault();
+                  this.undo();
+                }
+                break;
+              case 'y':
+                e.preventDefault();
+                this.redo();
+                break;
+              case 'Enter':
+                e.preventDefault();
+                qrGenerator.generateQR();
+                break;
+            }
+          }
+        });
+      }
+
+      undo() {
+        if (QRStudio.historyIndex > 0) {
+          QRStudio.historyIndex--;
+          this.restoreState(QRStudio.history[QRStudio.historyIndex]);
+          QRStudio.updateUndoRedo();
+        }
+      }
+
+      redo() {
+        if (QRStudio.historyIndex < QRStudio.history.length - 1) {
+          QRStudio.historyIndex++;
+          this.restoreState(QRStudio.history[QRStudio.historyIndex]);
+          QRStudio.updateUndoRedo();
+        }
+      }
+
+      restoreState(state) {
+        // Restore form values
+        Object.keys(state).forEach(key => {
+          const element = document.getElementById(key);
+          if (element) {
+            if (element.type === 'checkbox') {
+              element.checked = state[key];
+            } else {
+              element.value = state[key];
+            }
+          }
+        });
+        
+        // Regenerate QR
+        qrGenerator.generateQR(true);
+      }
+
+      toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Analytics Export
+    class AnalyticsManager {
+      constructor() {
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        document.getElementById('export-json').addEventListener('click', () => this.exportJSON());
+        document.getElementById('export-csv').addEventListener('click', () => this.exportCSV());
+        document.getElementById('clear-data').addEventListener('click', () => this.clearData());
+      }
+
+      exportJSON() {
+        const data = {
+          analytics: QRStudio.analytics,
+          exportDate: new Date().toISOString(),
+          version: '1.0'
+        };
+        
+        this.downloadFile(
+          'qr-analytics.json',
+          'application/json',
+          JSON.stringify(data, null, 2)
+        );
+      }
+
+      exportCSV() {
+        const headers = ['Date', 'Type', 'Content Type', 'Content', 'Size'];
+        const rows = QRStudio.analytics.recent.map(item => [
+          new Date(item.timestamp).toISOString(),
+          item.type,
+          item.contentType || '',
+          (item.content || '').replace(/"/g, '""'),
+          item.size || ''
+        ]);
+        
+        const csv = [headers, ...rows]
+          .map(row => row.map(cell => `"${cell}"`).join(','))
+          .join('\n');
+        
+        this.downloadFile('qr-analytics.csv', 'text/csv', csv);
+      }
+
+      downloadFile(filename, mimeType, content) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+
+      clearData() {
+        if (confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
+          QRStudio.analytics = { generated: 0, scanned: 0, types: {}, recent: [] };
+          QRStudio.saveAnalytics();
+          QRStudio.updateAnalyticsDisplay();
+        }
+      }
+    }
+
+    // Initialize all systems
+    const qrGenerator = new QRGenerator();
+    const downloadManager = new DownloadManager();
+    const batchProcessor = new BatchProcessor();
+    const qrScanner = new QRScanner();
+    const templateSystem = new TemplateSystem();
+    const historyManager = new HistoryManager();
+    const analyticsManager = new AnalyticsManager();
+
+    // Initial setup
+    QRStudio.updateAnalyticsDisplay();
+    QRStudio.updateUndoRedo();
+
+    // Auto-save current state periodically
+    setInterval(() => {
+      const currentState = {
+        'qr-content': document.getElementById('qr-content').value,
+        'content-type': document.getElementById('content-type').value,
+        'qr-size': document.getElementById('qr-size').value,
+        'qr-margin': document.getElementById('qr-margin').value,
+        'error-correction': document.getElementById('error-correction').value,
+        'fg-color': document.getElementById('fg-color').value,
+        'bg-color': document.getElementById('bg-color').value,
+        'use-gradient': document.getElementById('use-gradient').checked
+      };
+      
+      localStorage.setItem('qr-studio-state', JSON.stringify(currentState));
+    }, 30000); // Save every 30 seconds
+
+    // Restore state on load
+    try {
+      const savedState = JSON.parse(localStorage.getItem('qr-studio-state') || '{}');
+      Object.keys(savedState).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+          if (element.type === 'checkbox') {
+            element.checked = savedState[key];
+          } else {
+            element.value = savedState[key];
+          }
+        }
+      });
+      qrGenerator.updateDisplays();
+    } catch (error) {
+      console.log('No saved state to restore');
+    }
+
+    // Generate initial QR code
+    setTimeout(() => {
+      qrGenerator.generateQR(true);
+    }, 500);
+
+    // PWA Support
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {
+        console.log('Service Worker registration failed');
+      });
+    }
+
+    console.log('🎨 QR Studio Pro initialized successfully!');
+  </script>
+</body>
+</html>
