@@ -3,624 +3,725 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>QR Code Generator + Scanner (HTML/CSS/JS Only)</title>
-  <meta name="description" content="Client-side QR generator and scanner with download, no backend required." />
-  <style>
-    :root {
-      --bg: #0f172a; /* slate-900 */
-      --panel: #111827ee; /* gray-900 w/ alpha */
-      --muted: #94a3b8; /* slate-400 */
-      --text: #e5e7eb; /* gray-200 */
-      --accent: #22d3ee; /* cyan-400 */
-      --accent-2: #38bdf8; /* sky-400 */
-      --danger: #f87171; /* red-400 */
-      --ok: #4ade80; /* green-400 */
-      --warning: #fbbf24; /* amber-400 */
-      --card: #0b1220; /* slightly darker */
-      --border: #1f2937; /* gray-800 */
-    }
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: radial-gradient(1200px 800px at 10% 0%, #0b1220, #0a0f1e 40%, #050914 70%), var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
-    }
-    .container {
-      max-width: 1100px;
-      margin: 32px auto;
-      padding: 0 16px;
-    }
-    .title {
-      font-size: clamp(1.6rem, 2.2vw, 2.2rem);
-      margin: 0 0 8px;
-      font-weight: 800;
-      letter-spacing: 0.3px;
-    }
-    .subtitle {
-      margin: 0 0 24px;
-      color: var(--muted);
-    }
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-    .tab {
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, #0f172a, #0b1220);
-      padding: 10px 14px;
-      border-radius: 999px;
-      cursor: pointer;
-      user-select: none;
-      transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
-      color: var(--muted);
-    }
-    .tab.active {
-      color: #0a0f1e;
-      background: linear-gradient(180deg, var(--accent), var(--accent-2));
-      border-color: transparent;
-      box-shadow: 0 0 0 4px #22d3ee22;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 16px;
-    }
-    .card {
-      grid-column: span 12;
-      background: linear-gradient(180deg, #0e1527, #0b1220);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 20px 50px #0005 inset, 0 10px 20px #0003;
-    }
-    @media (min-width: 900px) {
-      .card-left { grid-column: span 7; }
-      .card-right { grid-column: span 5; }
-    }
-    .section-title {
-      font-size: 1.05rem;
-      margin: 0 0 12px;
-      letter-spacing: .2px;
-    }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    label { color: var(--muted); font-size: .9rem; }
-    input[type="text"], textarea, select, input[type="number"], input[type="color"] {
-      background: #0b1220;
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 10px;
-      padding: 10px 12px;
-      outline: none;
-    }
-    textarea { min-height: 110px; resize: vertical; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    button {
-      background: #0b1220;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 10px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease;
-    }
-    button:hover { border-color: #334155; box-shadow: 0 0 0 4px #22d3ee17; }
-    button.primary { background: linear-gradient(180deg, #16e0ff, #38bdf8); color: #041018; border-color: transparent; }
-    button.success { background: linear-gradient(180deg, #34d399, #22c55e); color: #03150e; border-color: transparent; }
-    button.danger { background: linear-gradient(180deg, #fb7185, #ef4444); color: #22060a; border-color: transparent; }
-    .preview {
-      display: grid; place-items: center;
-      background: radial-gradient(600px 400px at 80% 10%, #0b1220, #0a0f1e);
-      border: 1px dashed #1f2937;
-      border-radius: 14px; min-height: 320px;
-      overflow: hidden;
-    }
-    .muted { color: var(--muted); }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid var(--border); border-radius:999px; background:#0b1220; color:var(--muted); }
-    .kbd { border:1px solid var(--border); background:#0b1220; border-radius:6px; padding:2px 6px; font-size:.85rem; }
-    .list { margin: 6px 0 0 18px; color: var(--muted); }
-    .footer { margin-top: 18px; font-size: .9rem; color: var(--muted); }
-    .hr { height:1px; background: linear-gradient(90deg, transparent, #1f2937, transparent); margin: 12px 0; border:0; }
-    .success-text { color: var(--ok); }
-    .warn-text { color: var(--warning); }
-    .danger-text { color: var(--danger); }
-    .hidden { display: none; }
-    .flex { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
-  </style>
-  <!-- QR generation library (qrcodejs) -->
-  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
-  <!-- QR scanning library (jsQR) -->
+  <title>Pro QR Studio — Generator, Scanner, Batch & Analytics</title>
+  <meta name="description" content="Enterprise-grade QR generator & scanner with advanced styling, templates, batch CSV→ZIP, SVG/PNG export, logo overlay, presets, and optional analytics. 100% client-side." />
+  
+  <!-- ======= External Libraries (CDN) ======= -->
+  <!-- Advanced QR rendering (supports SVG, logos, gradients, shapes) -->
+  <script src="https://unpkg.com/qr-code-styling@1.6.0/lib/qr-code-styling.js"></script>
+  <!-- Camera decode -->
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <!-- ZIP for batch export -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <!-- FileSaver for saving ZIPs -->
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b1220;--panel:#0f172a;--text:#e5e7eb;--muted:#94a3b8;--border:#1f2937;--accent:#22d3ee;--accent2:#38bdf8;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:radial-gradient(1200px 800px at 10% -10%, #0e1630, #0b1220 60%),var(--bg);color:var(--text);font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+    a{color:var(--accent)}
+    .container{max-width:1200px;margin:24px auto;padding:0 16px}
+    h1{font-size:clamp(1.6rem,2.6vw,2.4rem);margin:0 0 4px;font-weight:800}
+    .subtitle{color:var(--muted);margin:0 0 18px}
+    .nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+    .tab{padding:10px 14px;border:1px solid var(--border);border-radius:999px;background:linear-gradient(180deg,#0e172b,#0b1220);color:var(--muted);cursor:pointer}
+    .tab.active{color:#03131e;background:linear-gradient(180deg,var(--accent),var(--accent2));border-color:transparent;box-shadow:0 0 0 4px #22d3ee2a}
+
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+    .card{grid-column:span 12;background:linear-gradient(180deg,#0f172a,#0c1221);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 20px 50px #0005 inset, 0 10px 20px #0003}
+    @media(min-width:1024px){.left{grid-column:span 7}.right{grid-column:span 5}}
+
+    label{color:var(--muted);font-size:.9rem}
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+    .col-6{grid-column:span 6}.col-4{grid-column:span 4}.col-3{grid-column:span 3}.col-8{grid-column:span 8}.col-12{grid-column:span 12}
+    input[type="text"], input[type="number"], input[type="file"], select, textarea{width:100%;background:#0b1220;border:1px solid var(--border);color:var(--text);border-radius:12px;padding:10px 12px;outline:none}
+    textarea{min-height:100px;resize:vertical}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    button{background:#0b1220;border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer}
+    button:hover{border-color:#334155;box-shadow:0 0 0 4px #22d3ee1a}
+    .primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#051018;border-color:transparent}
+    .success{background:linear-gradient(180deg,#34d399,#22c55e);color:#01150b;border-color:transparent}
+    .danger{background:linear-gradient(180deg,#fb7185,#ef4444);color:#2a070a;border-color:transparent}
+    .muted{color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:#0b1220;color:var(--muted)}
+    .kbd{border:1px solid var(--border);padding:2px 6px;border-radius:6px}
+    .hr{height:1px;background:linear-gradient(90deg,transparent,#1f2937,transparent);margin:12px 0}
+
+    .preview{display:grid;place-items:center;background:radial-gradient(600px 400px at 80% 10%,#0b1220,#0a0f1e);border:1px dashed #1f2937;border-radius:14px;min-height:340px;overflow:hidden}
+    #stage{display:grid;place-items:center}
+
+    /* Toast */
+    .toast{position:fixed;right:16px;bottom:16px;display:flex;gap:8px;align-items:center;background:#0f1a30;border:1px solid #1f2b45;color:#dbeafe;padding:10px 12px;border-radius:12px;opacity:0;transform:translateY(20px);transition:all .25s ease;z-index:999}
+    .toast.show{opacity:1;transform:translateY(0)}
+
+    .footer{margin-top:16px;color:var(--muted);font-size:.92rem}
+    .note{font-size:.9rem;color:var(--muted)}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="title">QR Code Generator + Scanner</h1>
-    <p class="subtitle">All client-side. Works offline after first load. No server required.</p>
+    <h1>Pro QR Studio</h1>
+    <p class="subtitle">Advanced generator, scanner, batch processor, and analytics hooks — all client‑side.</p>
 
-    <div class="tabs" role="tablist">
-      <div class="tab active" id="tab-generate" role="tab" aria-controls="panel-generate" aria-selected="true">Generate</div>
-      <div class="tab" id="tab-scan" role="tab" aria-controls="panel-scan" aria-selected="false">Scan</div>
+    <!-- Top navigation -->
+    <div class="nav" role="tablist">
+      <div id="tGen" class="tab active" role="tab" aria-controls="pGen" aria-selected="true">Generator</div>
+      <div id="tScan" class="tab" role="tab" aria-controls="pScan" aria-selected="false">Scanner</div>
+      <div id="tBatch" class="tab" role="tab" aria-controls="pBatch" aria-selected="false">Batch</div>
+      <div id="tAnalytics" class="tab" role="tab" aria-controls="pAnalytics" aria-selected="false">Analytics</div>
+      <div id="tAbout" class="tab" role="tab" aria-controls="pAbout" aria-selected="false">About</div>
     </div>
 
-    <!-- GENERATE PANEL -->
-    <section id="panel-generate" role="tabpanel" aria-labelledby="tab-generate">
+    <!-- ============= GENERATOR PANEL ============= -->
+    <section id="pGen">
       <div class="grid">
-        <div class="card card-left">
-          <h2 class="section-title">Create a QR Code</h2>
-          <div class="field">
-            <label for="qrText">Text / URL</label>
-            <textarea id="qrText" placeholder="Type text, URL, vCard, Wi‑Fi config, etc.">https://example.com</textarea>
-          </div>
-          <div class="row" style="margin-top:12px;">
-            <div class="field">
-              <label for="qrSize">Size (px)</label>
-              <input type="number" id="qrSize" min="100" max="1024" value="320" />
-            </div>
-            <div class="field">
-              <label for="qrMargin">Margin</label>
-              <input type="number" id="qrMargin" min="0" max="32" value="2" />
+        <!-- LEFT Controls -->
+        <div class="card left">
+          <h2 style="margin:0 0 8px">Content</h2>
+          <div class="row">
+            <div class="col-12">
+              <label for="content">Text / URL</label>
+              <textarea id="content" placeholder="Type text, URL, WiFi config, vCard, etc.">https://example.com</textarea>
             </div>
           </div>
-          <div class="row" style="margin-top:12px;">
-            <div class="field">
-              <label for="qrEcc">Error Correction</label>
-              <select id="qrEcc">
-                <option value="L">L — 7%</option>
-                <option value="M" selected>M — 15%</option>
-                <option value="Q">Q — 25%</option>
-                <option value="H">H — 30%</option>
+
+          <div class="row" style="margin-top:10px">
+            <div class="col-6">
+              <label for="preset">Preset</label>
+              <select id="preset">
+                <option value="custom" selected>Custom</option>
+                <option value="wifi">Wi‑Fi</option>
+                <option value="vcard">vCard</option>
+                <option value="sms">SMS</option>
+                <option value="email">Email</option>
+                <option value="geo">Geo (Maps)</option>
+                <option value="event">Event (iCal)</option>
               </select>
             </div>
-            <div class="field">
-              <label>Colors</label>
+            <div class="col-6">
+              <label for="filename">File name (no ext)</label>
+              <input id="filename" type="text" value="qr-code" />
+            </div>
+          </div>
+
+          <div class="hr"></div>
+          <h2 style="margin:0 0 8px">Styling</h2>
+          <div class="row">
+            <div class="col-4">
+              <label for="size">Size (px)</label>
+              <input id="size" type="number" min="128" max="2048" value="512" />
+            </div>
+            <div class="col-4">
+              <label for="margin">Quiet Zone (px)</label>
+              <input id="margin" type="number" min="0" max="64" value="20" />
+            </div>
+            <div class="col-4">
+              <label for="ecc">Error Correction</label>
+              <select id="ecc">
+                <option value="L">L (7%)</option>
+                <option value="M" selected>M (15%)</option>
+                <option value="Q">Q (25%)</option>
+                <option value="H">H (30%)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <div class="col-4">
+              <label for="dots">Dots Style</label>
+              <select id="dots">
+                <option value="square">Square</option>
+                <option value="dots">Dots</option>
+                <option value="rounded" selected>Rounded</option>
+                <option value="classy">Classy</option>
+                <option value="classy-rounded">Classy Rounded</option>
+                <option value="extra-rounded">Extra Rounded</option>
+              </select>
+            </div>
+            <div class="col-4">
+              <label for="cornersSquare">Eyes Square</label>
+              <select id="cornersSquare">
+                <option value="square">Square</option>
+                <option value="dot">Dot</option>
+                <option value="extra-rounded" selected>Extra Rounded</option>
+              </select>
+            </div>
+            <div class="col-4">
+              <label for="cornersDot">Eyes Dot</label>
+              <select id="cornersDot">
+                <option value="square">Square</option>
+                <option value="dot" selected>Dot</option>
+                <option value="extra-rounded">Extra Rounded</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <div class="col-6">
+              <label>QR Color</label>
               <div class="row">
-                <div class="field">
-                  <label for="qrDark">QR Color</label>
-                  <input type="color" id="qrDark" value="#000000" />
+                <div class="col-6"><input id="qrColor1" type="text" value="#111827" /></div>
+                <div class="col-6">
+                  <select id="qrColorMode">
+                    <option value="solid" selected>Solid</option>
+                    <option value="linear">Linear Gradient</option>
+                    <option value="radial">Radial Gradient</option>
+                  </select>
                 </div>
-                <div class="field">
-                  <label for="qrLight">Background</label>
-                  <input type="color" id="qrLight" value="#ffffff" />
+              </div>
+              <div class="row" style="margin-top:6px" id="qrColor2Row" hidden>
+                <div class="col-6"><input id="qrColor2" type="text" value="#2563eb" /></div>
+                <div class="col-6">
+                  <select id="qrGradPos">
+                    <option value="0">Top→Bottom</option>
+                    <option value="90" selected>Left→Right</option>
+                    <option value="45">↘︎ Diagonal</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <label>Background</label>
+              <div class="row">
+                <div class="col-6"><input id="bgColor1" type="text" value="#ffffff" /></div>
+                <div class="col-6">
+                  <select id="bgColorMode">
+                    <option value="solid" selected>Solid</option>
+                    <option value="linear">Linear Gradient</option>
+                    <option value="radial">Radial Gradient</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row" style="margin-top:6px" id="bgColor2Row" hidden>
+                <div class="col-6"><input id="bgColor2" type="text" value="#f1f5f9" /></div>
+                <div class="col-6">
+                  <select id="bgGradPos">
+                    <option value="0">Top→Bottom</option>
+                    <option value="90" selected>Left→Right</option>
+                    <option value="45">↘︎ Diagonal</option>
+                  </select>
                 </div>
               </div>
             </div>
           </div>
-          <div class="actions" style="margin-top:16px;">
-            <button class="primary" id="btnRender">Render QR</button>
-            <button id="btnClear">Clear</button>
-            <span class="pill mono" id="infoSize">320×320</span>
+
+          <div class="row" style="margin-top:10px">
+            <div class="col-4">
+              <label for="logoUpload">Logo (PNG/SVG)</label>
+              <input id="logoUpload" type="file" accept="image/*,.svg" />
+            </div>
+            <div class="col-4">
+              <label for="logoSize">Logo Size (%)</label>
+              <input id="logoSize" type="number" min="10" max="60" value="25" />
+            </div>
+            <div class="col-4">
+              <label for="logoMargin">Logo Margin (px)</label>
+              <input id="logoMargin" type="number" min="0" max="30" value="2" />
+            </div>
           </div>
-          <hr class="hr"/>
-          <p class="muted">Tips:
-            <ul class="list">
-              <li>Use higher <span class="mono">Error Correction</span> if you add logos or print small.</li>
-              <li>Dark-on-light has best scan reliability. Keep sufficient contrast.</li>
-              <li>For Wi‑Fi: <span class="mono">WIFI:T:WPA;S:MySSID;P:password;;</span></li>
-              <li>For vCard: paste full vCard text; most camera apps decode it.</li>
-            </ul>
-          </p>
+
+          <div class="row" style="margin-top:10px">
+            <div class="col-4">
+              <label for="format">Export</label>
+              <select id="format">
+                <option value="png" selected>PNG</option>
+                <option value="svg">SVG</option>
+                <option value="jpeg">JPEG</option>
+                <option value="webp">WEBP</option>
+              </select>
+            </div>
+            <div class="col-4">
+              <label for="scale">Export Scale (DPI)</label>
+              <input id="scale" type="number" min="1" max="8" value="2" />
+            </div>
+            <div class="col-4">
+              <label for="transparentBg">Transparent BG</label>
+              <select id="transparentBg">
+                <option value="no" selected>No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions" style="margin-top:14px">
+            <button class="primary" id="btnRender">Render</button>
+            <button class="success" id="btnDownload">Download</button>
+            <button id="btnCopy">Copy</button>
+            <button id="btnPrint">Print</button>
+            <button id="btnSaveTemplate">Save Template</button>
+            <button id="btnLoadTemplate">Load Template</button>
+          </div>
+          <p class="note">Shortcuts: <span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> render · <span class="kbd">Ctrl</span>+<span class="kbd">S</span> download</p>
         </div>
 
-        <div class="card card-right">
-          <h2 class="section-title">Preview & Download</h2>
-          <div id="qrPreview" class="preview"></div>
-          <div class="actions" style="margin-top:14px;">
-            <button class="success" id="btnDownloadPng" disabled>Download PNG</button>
-            <button id="btnCopyPng" disabled>Copy Image</button>
-            <button id="btnPrint" disabled>Print</button>
-          </div>
-          <p class="footer"><span class="muted">PNG downloads are generated locally using <span class="mono">canvas.toDataURL()</span>.</span></p>
+        <!-- RIGHT Preview -->
+        <div class="card right">
+          <h2 style="margin:0 0 8px">Preview</h2>
+          <div id="stage" class="preview"></div>
+          <div class="footer">Tip: Use higher ECC when adding logos or shrinking size. Maintain contrast for scan reliability.</div>
         </div>
       </div>
     </section>
 
-    <!-- SCAN PANEL -->
-    <section id="panel-scan" class="hidden" role="tabpanel" aria-labelledby="tab-scan">
+    <!-- ============= SCANNER PANEL ============= -->
+    <section id="pScan" hidden>
       <div class="grid">
-        <div class="card card-left">
-          <h2 class="section-title">Scan via Camera</h2>
-          <div class="flex" style="margin-bottom:10px;">
-            <button class="primary" id="btnStart">Start Camera</button>
-            <button id="btnStop" disabled>Stop</button>
-            <select id="cameraSelect" disabled title="Select camera"></select>
-            <span class="pill">Requires HTTPS</span>
+        <div class="card left">
+          <h2 style="margin:0 0 8px">Scan via Camera</h2>
+          <div class="actions" style="margin-bottom:10px">
+            <button class="primary" id="camStart">Start Camera</button>
+            <button id="camStop" disabled>Stop</button>
+            <select id="camSelect" disabled></select>
+            <span class="pill">HTTPS required</span>
           </div>
-          <div class="preview" style="position:relative;">
-            <video id="video" autoplay playsinline style="width:100%; max-height:480px; transform: scaleX(-1);"></video>
-            <canvas id="overlay" style="position:absolute; inset:0;"></canvas>
+          <div class="preview" style="position:relative">
+            <video id="video" autoplay playsinline style="width:100%;max-height:480px;transform:scaleX(-1)"></video>
+            <canvas id="overlay" style="position:absolute;inset:0"></canvas>
           </div>
-          <div class="footer">
-            <span id="scanStatus" class="muted">Camera idle.</span>
-          </div>
+          <div class="footer" id="scanStatus">Camera idle.</div>
         </div>
 
-        <div class="card card-right">
-          <h2 class="section-title">Scan from Image</h2>
-          <div class="flex" style="margin-bottom:8px;">
-            <input type="file" id="fileInput" accept="image/*" />
-            <button id="btnFromClipboard">Paste from Clipboard <span class="kbd">Ctrl</span>+<span class="kbd">V</span></button>
+        <div class="card right">
+          <h2 style="margin:0 0 8px">Scan from Image</h2>
+          <div class="actions" style="margin-bottom:8px">
+            <input type="file" id="imgFile" accept="image/*" />
+            <button id="pasteImg">Paste from Clipboard</button>
           </div>
-          <div id="imgPreview" class="preview" style="min-height: 240px;"></div>
-
-          <h3 style="margin-top:16px;">Result</h3>
-          <div id="resultBox" class="card" style="padding:12px; background:#0b1220;">
-            <div id="resultText" class="mono muted">No QR decoded yet.</div>
-            <div class="actions" style="margin-top:10px;">
-              <button id="btnCopyText" disabled>Copy Text</button>
-              <a id="btnOpenLink" class="pill" href="#" target="_blank" rel="noopener" style="text-decoration:none; pointer-events:none;">Open as Link</a>
+          <div id="imgPreview" class="preview" style="min-height:240px"></div>
+          <h3 style="margin:12px 0 6px">Result</h3>
+          <div class="card" style="background:#0b1220;padding:12px">
+            <div id="decoded" class="mono muted">No QR decoded yet.</div>
+            <div class="actions" style="margin-top:8px">
+              <button id="copyDecoded" disabled>Copy Text</button>
+              <a id="openDecoded" class="pill" href="#" target="_blank" rel="noopener" style="text-decoration:none;pointer-events:none">Open as Link</a>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <p class="footer">Keyboard: <span class="pill"><span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> to render</span> · <span class="pill">Camera access needs HTTPS or localhost</span></p>
+    <!-- ============= BATCH PANEL ============= -->
+    <section id="pBatch" hidden>
+      <div class="grid">
+        <div class="card left">
+          <h2 style="margin:0 0 8px">Batch Generate (CSV → ZIP)</h2>
+          <p class="note">Upload a CSV with columns: <span class="mono">text,filename,size,margin,ecc,dots,qrColor1,qrColor2,qrColorMode,bgColor1,bgColor2,bgColorMode,logoUrl,logoSize,logoMargin,format,scale</span>. Only <span class="mono">text</span> is required; others default to current UI values.</p>
+          <div class="actions" style="margin-bottom:8px">
+            <input id="csvFile" type="file" accept=".csv" />
+            <button class="primary" id="runBatch">Generate ZIP</button>
+            <button id="dlTemplate">Download CSV Template</button>
+          </div>
+          <div class="footer" id="batchStatus">Idle.</div>
+        </div>
+        <div class="card right">
+          <h2 style="margin:0 0 8px">Templates</h2>
+          <p class="note">Save your current configuration as a JSON template for reuse. You can also import a template file.</p>
+          <div class="actions">
+            <button id="exportTemplate">Export Template (.json)</button>
+            <input id="importTemplate" type="file" accept="application/json" />
+            <button id="resetDefaults">Reset to Defaults</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= ANALYTICS PANEL ============= -->
+    <section id="pAnalytics" hidden>
+      <div class="card">
+        <h2 style="margin:0 0 8px">Analytics Integration (Optional)</h2>
+        <p class="note">This app never sends data by default. Enable one of the adapters below or plug in your own. Events emitted: <span class="mono">qr_render</span>, <span class="mono">qr_download</span>, <span class="mono">qr_copy</span>, <span class="mono">qr_print</span>, <span class="mono">scan_success</span>, <span class="mono">batch_complete</span>.</p>
+        <div class="row">
+          <div class="col-6">
+            <label for="gaId">Google Analytics 4 Measurement ID</label>
+            <input id="gaId" type="text" placeholder="G-XXXXXXXXXX" />
+            <button id="enableGA">Enable GA4</button>
+          </div>
+          <div class="col-6">
+            <label for="plausibleDomain">Plausible Domain</label>
+            <input id="plausibleDomain" type="text" placeholder="yourdomain.com" />
+            <button id="enablePlausible">Enable Plausible</button>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <pre class="mono" style="white-space:pre-wrap;background:#0b1220;border:1px solid var(--border);border-radius:12px;padding:12px">// Custom adapter example
+window.proQRAnalytics = {
+  track: (eventName, payload={}) => {
+    // Send to your endpoint
+    // fetch('/analytics', {method:'POST',body:JSON.stringify({eventName, payload})})
+    console.log('custom-analytics', eventName, payload)
+  }
+}
+</pre>
+      </div>
+    </section>
+
+    <!-- ============= ABOUT PANEL ============= -->
+    <section id="pAbout" hidden>
+      <div class="card">
+        <h2 style="margin:0 0 8px">About</h2>
+        <p class="note">Pro QR Studio is a single‑file, privacy‑first QR toolkit. Everything runs locally in your browser. Perfect for individuals and enterprises who need customization, batch work, and optional analytics — with zero servers.</p>
+        <ul>
+          <li>SVG/PNG/JPEG/WEBP export with scale (DPI)</li>
+          <li>Gradients, shapes, custom eyes, logo overlay</li>
+          <li>Templates (save/load), presets (Wi‑Fi, vCard, etc.)</li>
+          <li>Batch CSV → ZIP (client‑side)</li>
+          <li>Scanner (camera / images)</li>
+          <li>Analytics adapters (GA4, Plausible, custom)</li>
+        </ul>
+        <p class="note">Security tip: host via HTTPS (GitHub Pages works great). Camera requires HTTPS/localhost.</p>
+      </div>
+    </section>
+
   </div>
 
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
   <script>
-    // ====== TAB SWITCHING ======
-    const tabGenerate = document.getElementById('tab-generate');
-    const tabScan = document.getElementById('tab-scan');
-    const panelGenerate = document.getElementById('panel-generate');
-    const panelScan = document.getElementById('panel-scan');
+    // ---------- Helpers ----------
+    const $ = (id) => document.getElementById(id);
+    const show = (el, v=true) => { el.hidden = !v }
+    const toast = (msg) => { const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600) }
 
-    function showTab(which) {
-      const isGen = which === 'gen';
-      tabGenerate.classList.toggle('active', isGen);
-      tabScan.classList.toggle('active', !isGen);
-      panelGenerate.classList.toggle('hidden', !isGen);
-      panelScan.classList.toggle('hidden', isGen);
-      if (!isGen) stopCamera();
-    }
-    tabGenerate.addEventListener('click', () => showTab('gen'));
-    tabScan.addEventListener('click', () => showTab('scan'));
+    // ---------- Tabs ----------
+    const tabs = [ ['tGen','pGen'], ['tScan','pScan'], ['tBatch','pBatch'], ['tAnalytics','pAnalytics'], ['tAbout','pAbout'] ]
+    tabs.forEach(([tId,pId])=>{
+      $(tId).addEventListener('click',()=>{
+        tabs.forEach(([t2,p2])=>{ $(t2).classList.toggle('active', t2===tId); show($(p2), p2===pId) })
+        if (pId!== 'pScan') stopCamera()
+      })
+    })
 
-    // ====== QR GENERATION ======
-    const qrText = document.getElementById('qrText');
-    const qrSize = document.getElementById('qrSize');
-    const qrMargin = document.getElementById('qrMargin');
-    const qrEcc = document.getElementById('qrEcc');
-    const qrDark = document.getElementById('qrDark');
-    const qrLight = document.getElementById('qrLight');
-    const qrPreview = document.getElementById('qrPreview');
-    const btnRender = document.getElementById('btnRender');
-    const btnClear = document.getElementById('btnClear');
-    const btnDownloadPng = document.getElementById('btnDownloadPng');
-    const btnCopyPng = document.getElementById('btnCopyPng');
-    const btnPrint = document.getElementById('btnPrint');
-    const infoSize = document.getElementById('infoSize');
-
-    let qrInstance = null;
-
-    function updateInfoSize() {
-      infoSize.textContent = `${qrSize.value}\u00D7${qrSize.value}`;
-    }
-    qrSize.addEventListener('input', updateInfoSize);
-    updateInfoSize();
-
-    function renderQR() {
-      const value = qrText.value.trim();
-      const size = Math.max(100, Math.min(1024, parseInt(qrSize.value || '320', 10)));
-      const margin = Math.max(0, Math.min(32, parseInt(qrMargin.value || '2', 10)));
-      const ecc = (qrEcc.value || 'M').toUpperCase();
-      const colorDark = qrDark.value || '#000000';
-      const colorLight = qrLight.value || '#ffffff';
-
-      if (!value) {
-        alert('Enter some text or a URL to encode.');
-        return;
+    // ---------- Presets ----------
+    const preset = $('preset');
+    preset.addEventListener('change', ()=>{
+      const v = preset.value;
+      if (v==='wifi') {
+        $('content').value = 'WIFI:T:WPA;S:MySSID;P:mypassword;;'
+      } else if (v==='vcard') {
+        $('content').value = `BEGIN:VCARD\nVERSION:3.0\nN:Doe;John;;;\nFN:John Doe\nTEL;TYPE=CELL:+11234567890\nEMAIL:john@example.com\nORG:Example Inc\nTITLE:Engineer\nEND:VCARD`
+      } else if (v==='sms') {
+        $('content').value = 'SMSTO:+11234567890:Hello there'
+      } else if (v==='email') {
+        $('content').value = 'mailto:hello@example.com?subject=Hi&body=Message'
+      } else if (v==='geo') {
+        $('content').value = 'geo:37.786971,-122.399677'
+      } else if (v==='event') {
+        $('content').value = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:Sample Event\nDTSTART:20250101T090000Z\nDTEND:20250101T100000Z\nEND:VEVENT\nEND:VCALENDAR`
       }
+    })
 
-      // Clear previous
-      qrPreview.innerHTML = '';
-      qrInstance = new QRCode(qrPreview, {
-        text: value,
-        width: size,
-        height: size,
-        colorDark,
-        colorLight,
-        correctLevel: QRCode.CorrectLevel[ecc]
-      });
+    // ---------- QR Instance (qr-code-styling) ----------
+    let qr = null; let logoDataUrl = null;
 
-      // Apply margin by wrapping in a padded container
-      qrPreview.style.padding = margin + 'px';
-
-      btnDownloadPng.disabled = false;
-      btnCopyPng.disabled = false;
-      btnPrint.disabled = false;
+    function gradientCfg(mode, c1, c2, angle=90) {
+      if (mode==='solid') return { color: c1 };
+      return {
+        gradient: mode==='linear' ? 'linear' : 'radial',
+        rotation: (angle * Math.PI)/180,
+        colorStops: [ { offset: 0, color: c1 }, { offset: 1, color: c2 } ]
+      }
     }
 
-    function clearQR() {
-      qrPreview.innerHTML = '';
-      btnDownloadPng.disabled = true;
-      btnCopyPng.disabled = true;
-      btnPrint.disabled = true;
-      qrInstance = null;
+    async function buildOptions() {
+      const size = clamp(parseInt($('size').value||512,10),128,2048)
+      const margin = clamp(parseInt($('margin').value||20,10),0,64)
+      const ecc = $('ecc').value
+      const dots = $('dots').value
+      const cs = $('cornersSquare').value
+      const cd = $('cornersDot').value
+      const qrMode = $('qrColorMode').value
+      const bgMode = $('bgColorMode').value
+      const qrColor1 = $('qrColor1').value || '#111827'
+      const qrColor2 = $('qrColor2').value || '#2563eb'
+      const bgColor1 = $('bgColor1').value || '#ffffff'
+      const bgColor2 = $('bgColor2').value || '#f1f5f9'
+      const qAngle = parseInt($('qrGradPos').value||90,10)
+      const bAngle = parseInt($('bgGradPos').value||90,10)
+
+      const imageOptions = logoDataUrl ? {
+        image: logoDataUrl,
+        imageOptions: { crossOrigin: 'anonymous', margin: clamp(parseInt($('logoMargin').value||2,10),0,30), imageSize: clamp(parseInt($('logoSize').value||25,10),10,60) / 100 }
+      } : {}
+
+      return {
+        width: size, height: size, type: 'svg', data: $('content').value.trim() || ' ',
+        margin, qrOptions: { errorCorrectionLevel: ecc },
+        dotsOptions: { type: dots, ...gradientCfg(qrMode, qrColor1, qrColor2, qAngle) },
+        backgroundOptions: { ...gradientCfg(bgMode, bgColor1, bgColor2, bAngle) },
+        cornersSquareOptions: { type: cs, color: qrColor1 },
+        cornersDotOptions: { type: cd, color: qrColor1 },
+        ...imageOptions
+      }
     }
 
-    function getCanvasInPreview() {
-      // qrcodejs renders a <img> OR <canvas>. Prefer canvas; if image exists, draw onto canvas for exporting.
-      const canvas = qrPreview.querySelector('canvas');
-      if (canvas) return canvas;
-      const img = qrPreview.querySelector('img');
-      if (!img) return null;
-      const c = document.createElement('canvas');
-      c.width = img.naturalWidth; c.height = img.naturalHeight;
-      const ctx = c.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      return c;
+    function clamp(n,min,max){ return Math.max(min, Math.min(max, n)) }
+
+    async function renderQR() {
+      const opts = await buildOptions()
+      if (qr) { $('stage').innerHTML = '' }
+      qr = new QRCodeStyling(opts)
+      qr.append($('stage'))
+      track('qr_render', { size: opts.width, ecc: opts.qrOptions.errorCorrectionLevel })
+      toast('Rendered QR')
     }
 
-    function downloadPNG() {
-      const canvas = getCanvasInPreview();
-      if (!canvas) return alert('No QR to download');
-      const url = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'qr-code.png';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+    async function downloadQR() {
+      if (!qr) await renderQR()
+      const name = sanitizeFileName(($('filename').value||'qr-code').trim())
+      const format = $('format').value
+      const scale = clamp(parseInt($('scale').value||2,10),1,8)
+      const transparent = $('transparentBg').value==='yes'
+      await qr.download({ name, extension: format, scale, background: transparent ? 'transparent' : undefined })
+      track('qr_download', { format, scale })
     }
 
-    async function copyPNG() {
-      const canvas = getCanvasInPreview();
-      if (!canvas) return alert('No QR to copy');
+    async function copyQR() {
+      if (!qr) await renderQR()
+      const blob = await qr.getRawData('png')
+      if (!blob) return alert('Copy not supported for this format, switch to PNG')
       try {
-        const blob = await new Promise(res => canvas.toBlob(res));
-        await navigator.clipboard.write([
-          new ClipboardItem({ [blob.type]: blob })
-        ]);
-        btnCopyPng.textContent = 'Copied!';
-        setTimeout(() => (btnCopyPng.textContent = 'Copy Image'), 1200);
-      } catch (e) {
-        alert('Copy not supported in this browser: ' + e.message);
+        await navigator.clipboard.write([ new ClipboardItem({ [blob.type]: blob }) ])
+        toast('Copied image to clipboard')
+        track('qr_copy')
+      } catch(e) { alert('Copy failed: '+e.message) }
+    }
+
+    async function printQR() {
+      if (!qr) await renderQR()
+      const blob = await qr.getRawData('png')
+      const url = URL.createObjectURL(blob)
+      const w = window.open('', 'qr-print')
+      w.document.write(`<!doctype html><title>Print QR</title><style>body{margin:0;display:grid;place-items:center}img{width:90vw;max-width:900px}</style><img src="${url}">`)
+      w.document.close(); w.focus(); w.print();
+      setTimeout(()=>URL.revokeObjectURL(url), 2000)
+      track('qr_print')
+    }
+
+    function sanitizeFileName(s){ return s.replace(/[^a-z0-9-_]+/gi,'-').replace(/^-+|-+$/g,'').toLowerCase() || 'qr-code' }
+
+    // Toggle gradient inputs visibility
+    function toggleGradRows(){
+      $('qrColor2Row').hidden = $('qrColorMode').value==='solid'
+      $('bgColor2Row').hidden = $('bgColorMode').value==='solid'
+    }
+    $('qrColorMode').addEventListener('change', toggleGradRows)
+    $('bgColorMode').addEventListener('change', toggleGradRows)
+    toggleGradRows()
+
+    // Logo uploader
+    $('logoUpload').addEventListener('change', async (e)=>{
+      const f = e.target.files?.[0]; if(!f) return
+      const url = URL.createObjectURL(f)
+      // Convert to dataURL to keep in template/export reliably
+      const data = await fileToDataURL(f)
+      logoDataUrl = data
+      toast('Logo loaded')
+      URL.revokeObjectURL(url)
+    })
+
+    function fileToDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file) }) }
+
+    // Buttons
+    $('btnRender').addEventListener('click', renderQR)
+    $('btnDownload').addEventListener('click', downloadQR)
+    $('btnCopy').addEventListener('click', copyQR)
+    $('btnPrint').addEventListener('click', printQR)
+
+    // Templates (localStorage)
+    const TEMPLATE_KEY = 'proqr_template_v1'
+    $('btnSaveTemplate').addEventListener('click', ()=>{
+      const t = currentTemplate()
+      localStorage.setItem(TEMPLATE_KEY, JSON.stringify(t))
+      toast('Template saved')
+    })
+    $('btnLoadTemplate').addEventListener('click', ()=>{
+      const raw = localStorage.getItem(TEMPLATE_KEY)
+      if (!raw) return alert('No saved template')
+      applyTemplate(JSON.parse(raw))
+      toast('Template loaded')
+      renderQR()
+    })
+
+    function currentTemplate(){
+      return {
+        content: $('content').value, filename: $('filename').value,
+        size: $('size').value, margin: $('margin').value, ecc: $('ecc').value,
+        dots: $('dots').value, cornersSquare: $('cornersSquare').value, cornersDot: $('cornersDot').value,
+        qrColorMode: $('qrColorMode').value, qrColor1: $('qrColor1').value, qrColor2: $('qrColor2').value, qrGradPos: $('qrGradPos').value,
+        bgColorMode: $('bgColorMode').value, bgColor1: $('bgColor1').value, bgColor2: $('bgColor2').value, bgGradPos: $('bgGradPos').value,
+        logoDataUrl, logoSize: $('logoSize').value, logoMargin: $('logoMargin').value,
+        format: $('format').value, scale: $('scale').value, transparentBg: $('transparentBg').value
       }
     }
 
-    function printQR() {
-      const canvas = getCanvasInPreview();
-      if (!canvas) return alert('No QR to print');
-      const data = canvas.toDataURL('image/png');
-      const w = window.open('', 'qr-print');
-      w.document.write(`<!doctype html><title>Print QR</title><style>body{margin:0;display:grid;place-items:center;}img{width:90vw;max-width:800px;}</style><img src="${data}"/>`);
-      w.document.close();
-      w.focus();
-      w.print();
+    function applyTemplate(t){
+      const set = (id,val)=>{ if($(id)) $(id).value = val }
+      for(const k in t){ if($(k)) set(k, t[k]) }
+      logoDataUrl = t.logoDataUrl || null
+      toggleGradRows()
     }
 
-    btnRender.addEventListener('click', renderQR);
-    btnClear.addEventListener('click', clearQR);
-    btnDownloadPng.addEventListener('click', downloadPNG);
-    btnCopyPng.addEventListener('click', copyPNG);
-    btnPrint.addEventListener('click', printQR);
+    // Export / Import Template files
+    $('exportTemplate').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(currentTemplate(), null, 2)], {type:'application/json'})
+      saveAs(blob, 'proqr-template.json')
+    })
+    $('importTemplate').addEventListener('change', async (e)=>{
+      const f = e.target.files?.[0]; if(!f) return
+      const txt = await f.text()
+      applyTemplate(JSON.parse(txt))
+      renderQR()
+      toast('Template imported')
+      e.target.value = ''
+    })
+    $('resetDefaults').addEventListener('click', ()=>{ location.reload() })
 
-    // Keyboard shortcut: Ctrl/Cmd + Enter to render
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        renderQR();
-      }
-    });
-
-    // ====== QR SCANNING ======
-    const video = document.getElementById('video');
-    const overlay = document.getElementById('overlay');
-    const scanStatus = document.getElementById('scanStatus');
-    const btnStart = document.getElementById('btnStart');
-    const btnStop = document.getElementById('btnStop');
-    const cameraSelect = document.getElementById('cameraSelect');
-
-    const fileInput = document.getElementById('fileInput');
-    const imgPreview = document.getElementById('imgPreview');
-    const btnFromClipboard = document.getElementById('btnFromClipboard');
-
-    const resultText = document.getElementById('resultText');
-    const btnCopyText = document.getElementById('btnCopyText');
-    const btnOpenLink = document.getElementById('btnOpenLink');
-
-    let stream = null; let animId = null; let scanning = false;
-
-    async function listCameras() {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const cams = devices.filter(d => d.kind === 'videoinput');
-      cameraSelect.innerHTML = '';
-      cams.forEach((c, i) => {
-        const opt = document.createElement('option');
-        opt.value = c.deviceId; opt.textContent = c.label || `Camera ${i+1}`;
-        cameraSelect.appendChild(opt);
-      });
-      cameraSelect.disabled = cams.length === 0;
-    }
-
-    function drawGuide(ctx, w, h) {
-      ctx.clearRect(0,0,w,h);
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = 'rgba(34, 211, 238, .9)';
-      const size = Math.min(w, h) * 0.7;
-      const x = (w - size) / 2; const y = (h - size) / 2;
-      const r = 18;
-      ctx.beginPath();
-      ctx.moveTo(x+r, y); ctx.lineTo(x+size-r, y);
-      ctx.quadraticCurveTo(x+size, y, x+size, y+r);
-      ctx.lineTo(x+size, y+size-r);
-      ctx.quadraticCurveTo(x+size, y+size, x+size-r, y+size);
-      ctx.lineTo(x+r, y+size);
-      ctx.quadraticCurveTo(x, y+size, x, y+size-r);
-      ctx.lineTo(x, y+r);
-      ctx.quadraticCurveTo(x, y, x+r, y);
-      ctx.stroke();
-    }
-
-    async function startCamera() {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        alert('Camera API not supported in this browser');
-        return;
-      }
-      try {
-        await listCameras();
-        const constraints = {
-          video: {
-            deviceId: cameraSelect.value ? { exact: cameraSelect.value } : undefined,
-            facingMode: cameraSelect.value ? undefined : { ideal: 'environment' },
-            width: { ideal: 1280 }, height: { ideal: 720 }
-          },
-          audio: false
-        };
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = stream;
-        await video.play();
-        cameraSelect.disabled = false;
-        btnStop.disabled = false;
-        scanning = true;
-        scanStatus.textContent = 'Scanning… Move the QR into the frame.';
-        loopScan();
-      } catch (e) {
-        console.error(e);
-        alert('Unable to access camera: ' + e.message + '\nNote: camera requires HTTPS or localhost.');
-      }
-    }
-
-    function stopCamera() {
-      scanning = false;
-      if (animId) cancelAnimationFrame(animId);
-      if (stream) stream.getTracks().forEach(t => t.stop());
-      stream = null; video.srcObject = null;
-      btnStop.disabled = true;
-      scanStatus.textContent = 'Camera stopped.';
-      const ctx = overlay.getContext('2d');
-      ctx && ctx.clearRect(0,0,overlay.width, overlay.height);
-    }
-
-    async function loopScan() {
-      const ctx = overlay.getContext('2d');
-      const w = overlay.width = video.videoWidth || overlay.clientWidth;
-      const h = overlay.height = video.videoHeight || 360;
-
-      drawGuide(ctx, w, h);
-
-      const work = document.createElement('canvas');
-      work.width = w; work.height = h;
-      const wctx = work.getContext('2d');
-      wctx.drawImage(video, 0, 0, w, h);
-      const img = wctx.getImageData(0, 0, w, h);
-      const code = jsQR(img.data, w, h, { inversionAttempts: 'dontInvert' });
-
-      if (code && code.data) {
-        scanning = false;
-        highlight(ctx, code.location);
-        onDecoded(code.data);
-        // keep camera running but pause decoding for a moment
-        await new Promise(r => setTimeout(r, 800));
-        scanning = true;
-      }
-
-      if (scanning) animId = requestAnimationFrame(loopScan);
-    }
-
-    function highlight(ctx, loc) {
-      if (!loc) return;
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.95)';
-      ctx.lineWidth = 4; ctx.beginPath();
-      ctx.moveTo(loc.topLeftCorner.x, loc.topLeftCorner.y);
-      ctx.lineTo(loc.topRightCorner.x, loc.topRightCorner.y);
-      ctx.lineTo(loc.bottomRightCorner.x, loc.bottomRightCorner.y);
-      ctx.lineTo(loc.bottomLeftCorner.x, loc.bottomLeftCorner.y);
-      ctx.closePath(); ctx.stroke();
-    }
-
-    function onDecoded(text) {
-      resultText.textContent = text;
-      btnCopyText.disabled = false;
-      // Detect URL
-      try {
-        const u = new URL(text);
-        btnOpenLink.href = u.href; btnOpenLink.style.pointerEvents = 'auto';
-        btnOpenLink.textContent = 'Open Link';
-      } catch {
-        btnOpenLink.href = '#'; btnOpenLink.style.pointerEvents = 'none';
-        btnOpenLink.textContent = 'Open as Link';
-      }
-      scanStatus.innerHTML = '<span class="success-text">Decoded!</span>';
-    }
-
-    btnStart.addEventListener('click', startCamera);
-    btnStop.addEventListener('click', stopCamera);
-    cameraSelect.addEventListener('change', () => {
-      if (stream) { stopCamera(); startCamera(); }
-    });
-
-    // Image file scanning
-    fileInput.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const url = URL.createObjectURL(file);
-      await decodeFromImageURL(url);
-      URL.revokeObjectURL(url);
-    });
-
-    async function decodeFromImageURL(url) {
-      imgPreview.innerHTML = '';
-      const img = new Image();
-      img.onload = () => {
-        imgPreview.appendChild(img);
-        const c = document.createElement('canvas');
-        c.width = img.naturalWidth; c.height = img.naturalHeight;
-        const ctx = c.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        const data = ctx.getImageData(0, 0, c.width, c.height);
-        const code = jsQR(data.data, c.width, c.height);
-        if (code && code.data) {
-          onDecoded(code.data);
-        } else {
-          resultText.textContent = 'No QR found in image.';
-          btnCopyText.disabled = true;
-          btnOpenLink.href = '#'; btnOpenLink.style.pointerEvents = 'none';
-        }
-      };
-      img.onerror = () => {
-        alert('Could not load the image.');
-      };
-      img.src = url;
-      img.style.maxWidth = '100%';
-    }
-
-    // Paste from clipboard (image)
-    btnFromClipboard.addEventListener('click', async () => {
-      try {
-        const items = await navigator.clipboard.read();
-        for (const item of items) {
-          for (const type of item.types) {
-            if (type.startsWith('image/')) {
-              const blob = await item.getType(type);
-              const url = URL.createObjectURL(blob);
-              await decodeFromImageURL(url);
-              URL.revokeObjectURL(url);
-              return;
-            }
-          }
-        }
-        alert('No image found in clipboard.');
-      } catch (e) {
-        alert('Clipboard read not supported or permission denied.');
-      }
-    });
-
-    // Copy decoded text
-    btnCopyText.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(resultText.textContent || '');
-        btnCopyText.textContent = 'Copied!';
-        setTimeout(() => (btnCopyText.textContent = 'Copy Text'), 1200);
-      } catch (e) { alert('Copy failed: ' + e.message); }
-    });
+    // Shortcuts
+    document.addEventListener('keydown', (e)=>{
+      if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='enter') { e.preventDefault(); renderQR() }
+      if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s') { e.preventDefault(); downloadQR() }
+    })
 
     // Initial render
-    renderQR();
+    renderQR()
+
+    // ---------- Scanner ----------
+    let stream=null, animId=null, scanning=false
+    const video = $('video'), overlay=$('overlay'), scanStatus=$('scanStatus')
+
+    async function listCameras(){
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      const cams = devices.filter(d=>d.kind==='videoinput')
+      const sel = $('camSelect'); sel.innerHTML='';
+      cams.forEach((c,i)=>{ const o=document.createElement('option'); o.value=c.deviceId; o.textContent=c.label||`Camera ${i+1}`; sel.appendChild(o) })
+      sel.disabled = cams.length===0
+    }
+
+    async function startCamera(){
+      if(!navigator.mediaDevices?.getUserMedia) return alert('Camera API not supported')
+      try{ await listCameras();
+        const constraints={ video:{ deviceId: $('camSelect').value?{exact:$('camSelect').value}:undefined, facingMode: $('camSelect').value?undefined:{ideal:'environment'}, width:{ideal:1280}, height:{ideal:720} }, audio:false }
+        stream = await navigator.mediaDevices.getUserMedia(constraints)
+        video.srcObject = stream; await video.play();
+        $('camSelect').disabled=false; $('camStop').disabled=false; scanning=true; scanStatus.textContent='Scanning…'
+        loopScan()
+      }catch(e){ alert('Unable to access camera: '+e.message+'\n(HTTPS or localhost required)') }
+    }
+
+    function stopCamera(){ scanning=false; if(animId) cancelAnimationFrame(animId); if(stream) stream.getTracks().forEach(t=>t.stop()); stream=null; video.srcObject=null; $('camStop').disabled=true; scanStatus.textContent='Camera stopped.'; const ctx=overlay.getContext('2d'); ctx&&ctx.clearRect(0,0,overlay.width,overlay.height) }
+
+    async function loopScan(){
+      const ctx=overlay.getContext('2d'); const w=overlay.width=video.videoWidth||overlay.clientWidth; const h=overlay.height=video.videoHeight||360
+      drawGuide(ctx,w,h)
+      const work=document.createElement('canvas'); work.width=w; work.height=h; const wctx=work.getContext('2d'); wctx.drawImage(video,0,0,w,h)
+      const img=wctx.getImageData(0,0,w,h); const code=jsQR(img.data,w,h,{inversionAttempts:'dontInvert'})
+      if(code&&code.data){ scanning=false; highlight(ctx,code.location); onDecoded(code.data); await new Promise(r=>setTimeout(r,900)); scanning=true }
+      if(scanning) animId=requestAnimationFrame(loopScan)
+    }
+
+    function drawGuide(ctx,w,h){ ctx.clearRect(0,0,w,h); ctx.lineWidth=3; ctx.strokeStyle='rgba(34,211,238,.9)'; const s=Math.min(w,h)*0.7; const x=(w-s)/2, y=(h-s)/2; const r=18; ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+s-r,y); ctx.quadraticCurveTo(x+s,y,x+s,y+r); ctx.lineTo(x+s,y+s-r); ctx.quadraticCurveTo(x+s,y+s,x+s-r,y+s); ctx.lineTo(x+r,y+s); ctx.quadraticCurveTo(x,y+s,x,y+s-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.stroke() }
+    function highlight(ctx,loc){ if(!loc) return; ctx.strokeStyle='rgba(56,189,248,.95)'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(loc.topLeftCorner.x,loc.topLeftCorner.y); ctx.lineTo(loc.topRightCorner.x,loc.topRightCorner.y); ctx.lineTo(loc.bottomRightCorner.x,loc.bottomRightCorner.y); ctx.lineTo(loc.bottomLeftCorner.x,loc.bottomLeftCorner.y); ctx.closePath(); ctx.stroke() }
+    function onDecoded(text){ $('decoded').textContent=text; $('copyDecoded').disabled=false; try{ const u=new URL(text); const a=$('openDecoded'); a.href=u.href; a.style.pointerEvents='auto'; a.textContent='Open Link' }catch{ const a=$('openDecoded'); a.href='#'; a.style.pointerEvents='none'; a.textContent='Open as Link' } scanStatus.innerHTML='<span style="color:var(--ok)">Decoded!</span>'; track('scan_success') }
+
+    $('camStart').addEventListener('click', startCamera)
+    $('camStop').addEventListener('click', stopCamera)
+    $('camSelect').addEventListener('change', ()=>{ if(stream){ stopCamera(); startCamera() } })
+
+    $('imgFile').addEventListener('change', async (e)=>{ const f=e.target.files?.[0]; if(!f) return; const url=URL.createObjectURL(f); await decodeFromImageURL(url); URL.revokeObjectURL(url) })
+    $('pasteImg').addEventListener('click', async ()=>{ try{ const items=await navigator.clipboard.read(); for(const it of items){ for(const t of it.types){ if(t.startsWith('image/')){ const blob=await it.getType(t); const url=URL.createObjectURL(blob); await decodeFromImageURL(url); URL.revokeObjectURL(url); return } } } alert('No image in clipboard') }catch(e){ alert('Clipboard read not supported or permission denied') } })
+    $('copyDecoded').addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText($('decoded').textContent||''); toast('Copied text'); }catch(e){ alert('Copy failed: '+e.message) } })
+
+    async function decodeFromImageURL(url){ $('imgPreview').innerHTML=''; const img=new Image(); img.onload=()=>{ $('imgPreview').appendChild(img); const c=document.createElement('canvas'); c.width=img.naturalWidth; c.height=img.naturalHeight; const ctx=c.getContext('2d'); ctx.drawImage(img,0,0); const d=ctx.getImageData(0,0,c.width,c.height); const code=jsQR(d.data,c.width,c.height); if(code&&code.data){ onDecoded(code.data) } else { $('decoded').textContent='No QR found in image.'; $('copyDecoded').disabled=true; const a=$('openDecoded'); a.href='#'; a.style.pointerEvents='none' } }; img.onerror=()=>alert('Could not load image'); img.src=url; img.style.maxWidth='100%'; }
+
+    // ---------- Batch ----------
+    const CSV_HEADER = 'text,filename,size,margin,ecc,dots,qrColor1,qrColor2,qrColorMode,bgColor1,bgColor2,bgColorMode,logoUrl,logoSize,logoMargin,format,scale\n'
+
+    $('dlTemplate').addEventListener('click', ()=>{ const blob=new Blob([CSV_HEADER+`Hello World,hello,512,20,M,rounded,#111827,#2563eb,linear,#ffffff,#f1f5f9,solid,,25,2,png,2\n`],{type:'text/csv'}); saveAs(blob,'proqr-template.csv') })
+
+    $('runBatch').addEventListener('click', async ()=>{
+      const f = $('csvFile').files?.[0]; if(!f) return alert('Choose a CSV file');
+      const text = await f.text(); const rows = parseCSV(text); if(rows.length===0) return alert('CSV is empty');
+      $('batchStatus').textContent = 'Generating…';
+      const zip = new JSZip(); let count=0;
+      for(const r of rows){ try {
+          const cfg = rowToConfig(r); const imgBlob = await generateOne(cfg); const name = sanitizeFileName(cfg.filename||'qr')+'.'+(cfg.format||'png'); zip.file(name, imgBlob); count++; }
+        catch(e){ console.error('Row failed', r, e) }
+      }
+      const content = await zip.generateAsync({type:'blob'}); saveAs(content, 'qr-batch.zip'); $('batchStatus').textContent = `Done. ${count} files in qr-batch.zip`; toast('Batch complete'); track('batch_complete', { count })
+    })
+
+    function parseCSV(str){
+      const lines = str.split(/\r?\n/).filter(Boolean); if(lines.length===0) return []
+      const header = lines[0].split(',').map(s=>s.trim());
+      const rows = [];
+      for(let i=1;i<lines.length;i++){
+        const cols = smartSplit(lines[i]);
+        const obj = {}; header.forEach((h,idx)=>obj[h]=cols[idx]!==undefined?cols[idx].trim():undefined); rows.push(obj)
+      }
+      return rows
+    }
+    function smartSplit(line){ // handles simple quoted CSV
+      const out=[]; let cur=''; let inQ=false; for(let i=0;i<line.length;i++){ const ch=line[i]; if(ch==='"'){ inQ=!inQ; continue } if(ch===',' && !inQ){ out.push(cur); cur=''; } else { cur+=ch } } out.push(cur); return out }
+
+    function rowToConfig(r){
+      const base = currentTemplate();
+      return {
+        text: r.text || base.content,
+        filename: r.filename || base.filename,
+        size: num(r.size, base.size), margin: num(r.margin, base.margin), ecc: (r.ecc||base.ecc||'M'),
+        dots: r.dots||base.dots,
+        qrColor1: r.qrColor1||base.qrColor1, qrColor2: r.qrColor2||base.qrColor2, qrColorMode: r.qrColorMode||base.qrColorMode, qrGradPos: base.qrGradPos,
+        bgColor1: r.bgColor1||base.bgColor1, bgColor2: r.bgColor2||base.bgColor2, bgColorMode: r.bgColorMode||base.bgColorMode, bgGradPos: base.bgGradPos,
+        logoUrl: r.logoUrl||null, logoSize: num(r.logoSize, base.logoSize), logoMargin: num(r.logoMargin, base.logoMargin),
+        format: (r.format||base.format||'png'), scale: num(r.scale, base.scale)
+      }
+    }
+    function num(v, fallback){ const n=parseInt(v,10); return Number.isFinite(n)?n:parseInt(fallback,10) }
+
+    async function generateOne(cfg){
+      // load logo if provided (URL)
+      let imageOpt = {}; if(cfg.logoUrl){ try { const dataUrl = await fetchToDataUrl(cfg.logoUrl); imageOpt = { image: dataUrl, imageOptions:{ margin:cfg.logoMargin||2, imageSize:(cfg.logoSize||25)/100 } } } catch(e){ console.warn('Logo fetch failed', e) } }
+      const opts = {
+        width: parseInt(cfg.size||512,10), height: parseInt(cfg.size||512,10), type:'svg', data: cfg.text,
+        margin: parseInt(cfg.margin||20,10), qrOptions: { errorCorrectionLevel: cfg.ecc||'M' },
+        dotsOptions: { type: cfg.dots||'rounded', ...gradientCfg(cfg.qrColorMode||'solid', cfg.qrColor1||'#111827', cfg.qrColor2||'#2563eb', parseInt(cfg.qrGradPos||90,10)) },
+        backgroundOptions: { ...gradientCfg(cfg.bgColorMode||'solid', cfg.bgColor1||'#ffffff', cfg.bgColor2||'#f1f5f9', parseInt(cfg.bgGradPos||90,10)) },
+        cornersSquareOptions: { type: $('cornersSquare').value, color: cfg.qrColor1||'#111827' },
+        cornersDotOptions: { type: $('cornersDot').value, color: cfg.qrColor1||'#111827' },
+        ...imageOpt
+      }
+      const q = new QRCodeStyling(opts)
+      const format = (cfg.format||'png').toLowerCase(); const scale = clamp(parseInt(cfg.scale||2,10),1,8)
+      const blob = await q.getRawData(format, {scale})
+      return blob
+    }
+
+    async function fetchToDataUrl(url){ const res=await fetch(url); const blob=await res.blob(); return await new Promise((resv)=>{ const fr=new FileReader(); fr.onload=()=>resv(fr.result); fr.readAsDataURL(blob) }) }
+
+    // ---------- Analytics ----------
+    window.proQRAnalytics = window.proQRAnalytics || { track: (name,payload={}) => console.log('[analytics]', name, payload) }
+    function track(name, payload){ try{ window.proQRAnalytics.track(name, payload) }catch(e){ console.warn('analytics error', e) } }
+
+    $('enableGA').addEventListener('click', ()=>{
+      const id = $('gaId').value.trim(); if(!id) return alert('Enter GA4 Measurement ID')
+      // Inject GA4
+      const s1=document.createElement('script'); s1.async=true; s1.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`; document.head.appendChild(s1)
+      const s2=document.createElement('script'); s2.innerHTML = `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${id}'); window.proQRAnalytics = { track: (n,p={}) => gtag('event', n, p) }`; document.head.appendChild(s2)
+      toast('GA4 enabled')
+    })
+
+    $('enablePlausible').addEventListener('click', ()=>{
+      const domain = $('plausibleDomain').value.trim(); if(!domain) return alert('Enter domain')
+      const s=document.createElement('script'); s.defer=true; s.setAttribute('data-domain', domain); s.src='https://plausible.io/js/plausible.js'; document.head.appendChild(s)
+      window.proQRAnalytics = { track: (n,p={}) => window.plausible ? window.plausible(n, { props:p }) : console.log('[plausible]', n, p) }
+      toast('Plausible enabled')
+    })
+
   </script>
 </body>
 </html>
