@@ -19,6 +19,7 @@
       justify-content: center;
       height: 100vh;
       text-align: center;
+      flex-direction: column;
     }
     .container {
       max-width: 600px;
@@ -39,7 +40,7 @@
       margin-bottom: 2rem;
       color: #dcdcdc;
     }
-    a {
+    a.button {
       display: inline-block;
       padding: 0.75rem 1.5rem;
       font-size: 1rem;
@@ -49,13 +50,26 @@
       text-decoration: none;
       transition: 0.3s;
     }
-    a:hover {
+    a.button:hover {
       background: #e84118;
       transform: scale(1.05);
     }
     .emoji {
       font-size: 3rem;
       margin-bottom: 1rem;
+    }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    footer a {
+      color: #ff4757;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    footer a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -65,7 +79,18 @@
     <h1>404</h1>
     <h2>Page Not Found</h2>
     <p>Oops! The page you’re looking for doesn’t exist or has been moved.</p>
-    <a href="index.html">⬅ Back to Home</a>
+    <a href="index.html" class="button">⬅ Back to Home</a>
+    <footer>
+      <p>
+        © <span id="year"></span> 
+        <a href="https://github.com/lovnishverma" target="_blank">Lovnish Verma</a>. All Rights Reserved.
+      </p>
+    </footer>
   </div>
+
+  <script>
+    // Auto-update year
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
