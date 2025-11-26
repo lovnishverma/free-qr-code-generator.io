@@ -6,6 +6,10 @@ No backend, no tracking, and works offline after the first load. 🚀
 
 ---
 
+
+
+---
+
 ## ✨ Features
 - ✅ Generate custom QR codes (size, margin, colors, error correction levels)  
 - ✅ Download, copy, or print QR codes (PNG format)  
