@@ -3,11 +3,6 @@
 A **free and open-source QR Code Generator + Scanner** built with pure **HTML, CSS, and JavaScript**.  
 No backend, no tracking, and works offline after the first load. 🚀  
 
-
----
-
-
-
 ---
 
 ## ✨ Features
